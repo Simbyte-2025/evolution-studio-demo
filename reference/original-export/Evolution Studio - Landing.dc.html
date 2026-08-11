@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body { margin: 0; background: #0B0B0C; }
+  * { -webkit-font-smoothing: antialiased; }
+  a { color: #C8A24A; text-decoration: none; }
+  a:hover { color: #E8CE85; }
+  ::selection { background: #C8A24A; color: #0B0B0C; }
+</style>
+</helmet>
+<div style="background: #0B0B0C; color: #F2EFE9; font-family: 'Jost', system-ui, sans-serif; overflow-x: hidden">
+
+  <div style="position: sticky; top: 0; z-index: 40; background: rgba(11,11,12,0.82); backdrop-filter: blur(14px); border-bottom: 1px solid #1E1C1D">
+    <div style="max-width: 1140px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 21px; letter-spacing: 0.16em; color: #E8CE85">EVOLUTION</div>
+        <div style="font-size: 10px; letter-spacing: 0.34em; color: #8A8580; text-transform: uppercase">Studio</div>
+      </div>
+      <a href="{{ bookingUrl }}" target="_blank" style="padding: 10px 20px; border-radius: 2px; background: linear-gradient(135deg, #E8CE85, #C8A24A 55%, #9C7A2C); color: #14100A; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap">Reservar</a>
+    </div>
+  </div>
+
+  <div style="position: relative; min-height: 88vh; display: flex; align-items: flex-end; overflow: hidden">
+    <div style="position: absolute; inset: 0">
+      <image-slot id="evo-hero" shape="rect" fit="cover" placeholder="Foto del estudio"></image-slot>
+    </div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,11,12,0.72) 0%, rgba(11,11,12,0.28) 34%, rgba(11,11,12,0.92) 82%, #0B0B0C 100%); pointer-events: none"></div>
+    <div style="position: relative; width: 100%; max-width: 1140px; margin: 0 auto; padding: 0 20px 56px; pointer-events: none">
+      <div style="max-width: 620px; display: flex; flex-direction: column; gap: 22px; padding: 30px 26px 30px 0; background: linear-gradient(100deg, rgba(11,11,12,0.9) 0%, rgba(11,11,12,0.86) 62%, rgba(11,11,12,0) 100%); box-shadow: -40px 0 0 rgba(11,11,12,0.9)">
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div style="width: 34px; height: 1px; background: #C8A24A"></div>
+          <div style="font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: #C8A24A">Quinta de Tilcoco</div>
+        </div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: clamp(46px, 12vw, 96px); line-height: 0.92; letter-spacing: -0.01em">Evolution<br><span style="color: #E8CE85; font-style: italic; font-weight: 300">Studio</span></div>
+        <div style="font-size: clamp(16px, 4.2vw, 20px); line-height: 1.55; color: #CFC9C0; max-width: 460px; text-wrap: pretty">Barbería y cuidado de imagen personal. Cuatro barberos, hora reservada y el corte que pediste, sin esperas.</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 6px; pointer-events: auto">
+          <a href="{{ bookingUrl }}" target="_blank" style="padding: 17px 34px; border-radius: 2px; background: linear-gradient(135deg, #E8CE85, #C8A24A 55%, #9C7A2C); color: #14100A; font-size: 14px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase">Reservar hora</a>
+          <a href="https://instagram.com/evolution_barbercut" target="_blank" style="padding: 17px 30px; border-radius: 2px; border: 1px solid #3A3639; color: #F2EFE9; font-size: 14px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase">Ver Instagram</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="border-top: 1px solid #1E1C1D; border-bottom: 1px solid #1E1C1D; background: #0E0E0F">
+    <div style="max-width: 1140px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))">
+      <div style="padding: 26px 8px; display: flex; flex-direction: column; gap: 6px; text-align: center; border-right: 1px solid #1E1C1D">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 30px; color: #E8CE85">4</div>
+        <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #8A8580">Barberos</div>
+      </div>
+      <div style="padding: 26px 8px; display: flex; flex-direction: column; gap: 6px; text-align: center; border-right: 1px solid #1E1C1D">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 30px; color: #E8CE85">Online</div>
+        <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #8A8580">Agenda 24/7</div>
+      </div>
+      <div style="padding: 26px 8px; display: flex; flex-direction: column; gap: 6px; text-align: center">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 30px; color: #E8CE85">Local C</div>
+        <div style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #8A8580">Argomedo 1591</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width: 1140px; margin: 0 auto; padding: 84px 20px 0">
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px">
+      <div style="font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: #C8A24A">Servicios</div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 8vw, 52px); line-height: 1.04">Lo que hacemos</div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1px; background: #1E1C1D; border: 1px solid #1E1C1D">
+      <sc-for list="{{ services }}" as="s" hint-placeholder-count="6">
+        <div style="background: #0B0B0C; padding: 30px 26px; display: flex; flex-direction: column; gap: 10px; min-height: 168px">
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 15px; color: #6E6862; letter-spacing: 0.1em">{{ s.num }}</div>
+          <div style="font-size: 20px; font-weight: 500; letter-spacing: 0.01em">{{ s.name }}</div>
+          <div style="font-size: 15px; line-height: 1.55; color: #97918A; text-wrap: pretty">{{ s.desc }}</div>
+          <div style="margin-top: auto; padding-top: 14px; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #C8A24A">{{ s.meta }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top: 16px; font-size: 14px; color: #6E6862">Valores vigentes y duración exacta se muestran al elegir la hora en el sistema de reservas.</div>
+  </div>
+
+  <sc-if value="{{ showPromos }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width: 1140px; margin: 0 auto; padding: 84px 20px 0">
+      <div style="border: 1px solid #2A2419; background: linear-gradient(160deg, #14110A, #0B0B0C 62%); padding: clamp(28px, 6vw, 54px); display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; align-items: center">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div style="font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: #C8A24A">Beneficios vigentes</div>
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: clamp(30px, 7vw, 46px); line-height: 1.05">Reservando online<br>siempre conviene más</div>
+          <div style="font-size: 16px; line-height: 1.6; color: #A8A29A; max-width: 420px; text-wrap: pretty">La hora queda tomada a tu nombre y el barbero que elegiste te espera. Sin fila, sin escribir por mensaje.</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1px; background: #2A2419">
+          <sc-for list="{{ promos }}" as="p" hint-placeholder-count="3">
+            <div style="background: #0D0C0A; padding: 22px 24px; display: flex; align-items: baseline; gap: 18px">
+              <div style="font-family: 'Cormorant Garamond', serif; font-size: 26px; color: #E8CE85; min-width: 72px">{{ p.value }}</div>
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <div style="font-size: 16px; font-weight: 500">{{ p.title }}</div>
+                <div style="font-size: 14px; line-height: 1.5; color: #8A8580">{{ p.desc }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="max-width: 1140px; margin: 0 auto; padding: 84px 20px 0">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 40px">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: #C8A24A">Galería</div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 8vw, 52px); line-height: 1.04">Trabajo y ambiente</div>
+      </div>
+      <a href="https://instagram.com/evolution_barbercut" target="_blank" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; padding-bottom: 6px; border-bottom: 1px solid #3A3639">@evolution_barbercut</a>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+      <div style="aspect-ratio: 3 / 4; position: relative">
+        <image-slot id="evo-g1" shape="rect" fit="cover" placeholder="Corte terminado — antes/después"></image-slot>
+      </div>
+      <div style="aspect-ratio: 3 / 4; position: relative">
+        <image-slot id="evo-g2" shape="rect" fit="cover" placeholder="Detalle de barba o perfilado"></image-slot>
+      </div>
+      <div style="aspect-ratio: 3 / 4; position: relative">
+        <image-slot id="evo-g3" shape="rect" fit="cover" placeholder="Interior del local"></image-slot>
+      </div>
+      <div style="aspect-ratio: 3 / 4; position: relative">
+        <image-slot id="evo-g4" shape="rect" fit="cover" placeholder="Barbero trabajando"></image-slot>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width: 1140px; margin: 0 auto; padding: 84px 20px 0">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(28px, 6vw, 64px); align-items: center">
+      <div style="aspect-ratio: 4 / 5; position: relative; order: 2">
+        <image-slot id="evo-about" shape="rect" fit="cover" placeholder="Foto del equipo o del sillón principal"></image-slot>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 18px; order: 1">
+        <div style="font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: #C8A24A">El estudio</div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 8vw, 52px); line-height: 1.04">Un lugar donde volver</div>
+        <div style="font-size: 17px; line-height: 1.65; color: #A8A29A; text-wrap: pretty">Evolution Studio es una barbería de Quinta de Tilcoco. Trabajamos con hora reservada para dedicarle el tiempo completo a cada cliente, y para que sepas siempre con quién te vas a atender.</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; padding-top: 8px">
+          <sc-for list="{{ team }}" as="m" hint-placeholder-count="4">
+            <div style="padding: 11px 20px; border: 1px solid #2A2729; font-size: 14px; letter-spacing: 0.06em; color: #CFC9C0">{{ m.name }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ showTestimonios }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width: 1140px; margin: 0 auto; padding: 84px 20px 0">
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px">
+        <div style="font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: #C8A24A">Reseñas</div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 8vw, 52px); line-height: 1.04">Lo que dicen</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px">
+        <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="3">
+          <div style="border: 1px solid #1E1C1D; background: #0E0E0F; padding: 28px 26px; display: flex; flex-direction: column; gap: 18px">
+            <div style="font-size: 14px; letter-spacing: 0.3em; color: #C8A24A">★★★★★</div>
+            <div style="font-family: 'Cormorant Garamond', serif; font-size: 21px; line-height: 1.45; color: #E6E1DA; text-wrap: pretty">{{ r.quote }}</div>
+            <div style="margin-top: auto; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #7B756F">{{ r.author }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="margin-top: 90px; border-top: 1px solid #1E1C1D; background: linear-gradient(180deg, #0E0D0B, #0B0B0C)">
+    <div style="max-width: 900px; margin: 0 auto; padding: clamp(60px, 12vw, 110px) 20px; display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center">
+      <div style="font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: #C8A24A">Agenda con nosotros</div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: clamp(38px, 10vw, 72px); line-height: 1.0">Elige tu barbero<br><span style="font-style: italic; font-weight: 300; color: #E8CE85">y tu hora</span></div>
+      <div style="font-size: 17px; line-height: 1.6; color: #A8A29A; max-width: 440px; text-wrap: pretty">Disponibilidad en tiempo real. Reservas en menos de un minuto desde el celular.</div>
+      <a href="{{ bookingUrl }}" target="_blank" style="margin-top: 8px; padding: 19px 44px; border-radius: 2px; background: linear-gradient(135deg, #E8CE85, #C8A24A 55%, #9C7A2C); color: #14100A; font-size: 15px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase">Reservar hora</a>
+    </div>
+  </div>
+
+  <div style="border-top: 1px solid #1E1C1D">
+    <div style="max-width: 1140px; margin: 0 auto; padding: 56px 20px 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px">
+      <div style="display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: baseline; gap: 10px">
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 21px; letter-spacing: 0.16em; color: #E8CE85">EVOLUTION</div>
+          <div style="font-size: 10px; letter-spacing: 0.34em; color: #8A8580; text-transform: uppercase">Studio</div>
+        </div>
+        <div style="font-size: 15px; line-height: 1.6; color: #7B756F">Barbería e imagen personal<br>Quinta de Tilcoco, Chile</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase; color: #6E6862">Dónde estamos</div>
+        <div style="font-size: 15px; line-height: 1.6; color: #CFC9C0">Avenida Argomedo 1591, Local C<br>Quinta de Tilcoco</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase; color: #6E6862">Horario</div>
+        <div style="font-size: 15px; line-height: 1.6; color: #CFC9C0">Consulta la disponibilidad<br>real en la agenda online</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase; color: #6E6862">Contacto</div>
+        <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+          <a href="https://instagram.com/evolution_barbercut" target="_blank" style="font-size: 15px">@evolution_barbercut</a>
+          <a href="{{ bookingUrl }}" target="_blank" style="font-size: 15px">Reservar hora online</a>
+        </div>
+      </div>
+    </div>
+    <div style="border-top: 1px solid #1E1C1D">
+      <div style="max-width: 1140px; margin: 0 auto; padding: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; font-size: 13px; color: #57524E">
+        <div>© 2026 Evolution Studio</div>
+        <div>Propuesta preparada por Simbyte</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;bookingUrl&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;https://vortexa.cl/saas/evolution/gestion_horas/reservar&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Reservas&quot;}, &quot;showPromos&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Secciones&quot;}, &quot;showTestimonios&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Secciones&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      bookingUrl: this.props.bookingUrl ?? 'https://vortexa.cl/saas/evolution/gestion_horas/reservar',
+      showPromos: this.props.showPromos ?? true,
+      showTestimonios: this.props.showTestimonios ?? true,
+      services: [
+        { num: '01', name: 'Corte de cabello', desc: 'Corte a máquina o tijera, definido según la forma de tu rostro y cómo lo peinas.', meta: 'Reserva online' },
+        { num: '02', name: 'Corte + barba', desc: 'El servicio completo: corte, perfilado de barba, toalla caliente y terminación.', meta: 'Más pedido' },
+        { num: '03', name: 'Perfilado de barba', desc: 'Diseño de contorno, recorte y afeitado de los bordes con navaja.', meta: 'Reserva online' },
+        { num: '04', name: 'Cortes para niños', desc: 'Con paciencia y sin apuro, para que la primera experiencia sea buena.', meta: 'Reserva online' },
+        { num: '05', name: 'Color y decoloración', desc: 'Aplicación de color, mechas o platinado con evaluación previa del cabello.', meta: 'Requiere confirmación' },
+        { num: '06', name: 'Diseños y freestyle', desc: 'Líneas y figuras a navaja sobre el corte, hechas a pedido.', meta: 'Reserva online' }
+      ],
+      promos: [
+        { value: '1 min', title: 'Reserva en un minuto', desc: 'Desde el link de la bio, sin llamar ni escribir.' },
+        { value: 'Tu barbero', title: 'Elige con quién', desc: 'Leo, Vicente, Cristóbal o Erik, según su disponibilidad.' },
+        { value: 'Aviso', title: 'Recordatorio antes de tu hora', desc: 'Para que no se te pase y el sillón no quede vacío.' }
+      ],
+      team: [{ name: 'Leo' }, { name: 'Vicente' }, { name: 'Cristóbal' }, { name: 'Erik' }],
+      reviews: [
+        { quote: 'Llegué a la hora y me atendieron a la hora. Salí con el corte que pedí.', author: 'Reseña de ejemplo' },
+        { quote: 'El local está impecable y se nota que se toman el tiempo con cada cliente.', author: 'Reseña de ejemplo' },
+        { quote: 'Reservé desde Instagram en un minuto y elegí con quién quería atenderme.', author: 'Reseña de ejemplo' }
+      ]
+    };
+  }
+}
+
+</script>
+</body>
+</html>
