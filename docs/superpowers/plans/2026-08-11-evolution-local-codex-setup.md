@@ -49,9 +49,9 @@
 - Create when possible: `docs/baseline/mobile-390.png`
 - Create when possible: `docs/baseline/mobile-430.png`
 
-- [ ] Iniciar `python3 -m http.server 4173` desde la raíz.
-- [ ] Confirmar respuesta HTTP 200 de `/`.
-- [ ] Generar captura headless a 390 px.
-- [ ] Generar captura headless a 430 px.
-- [ ] Confirmar que la URL Vortexa y el Instagram están presentes en `index.html`.
-- [ ] Inicializar Git y registrar el baseline en un commit.
+- [x] Iniciar `python3 -m http.server 4173` desde la raíz.
+- [x] Confirmar respuesta HTTP 200 de `/`.
+- [ ] Generar captura headless a 390 px en el equipo local (el Chromium del sandbox no completó la captura).
+- [ ] Generar captura headless a 430 px en el equipo local (el Chromium del sandbox no completó la captura).
+- [x] Confirmar que la URL Vortexa y el Instagram están presentes en `index.html`.
+- [x] Inicializar Git y registrar el baseline en un commit.
