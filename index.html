@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Evolution Studio en Quinta de Tilcoco. Reserva tu hora en la agenda online del estudio.">
+  <title>Evolution Studio | Quinta de Tilcoco</title>
+  <link rel="icon" type="image/jpeg" href="assets/reference/evolution-logo-instagram.jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --black: #090909;
+      --black-soft: #0f0f0f;
+      --surface: #141311;
+      --line: #2d2922;
+      --gold: #c9a54b;
+      --gold-light: #ead07f;
+      --ivory: #f4f0e8;
+      --muted: #b4aea4;
+      --content: 1120px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      overflow-x: hidden;
+      background: var(--black);
+      color: var(--ivory);
+      font-family: "Jost", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:focus-visible {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 4px;
+    }
+
+    ::selection {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(201, 165, 75, 0.2);
+      background: rgba(9, 9, 9, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .header-inner {
+      width: min(100%, var(--content));
+      min-height: 60px;
+      margin: 0 auto;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 36px;
+      flex: 0 0 36px;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border: 1px solid rgba(234, 208, 127, 0.42);
+      border-radius: 50%;
+      background: #000;
+      box-shadow: 0 0 24px rgba(201, 165, 75, 0.08);
+    }
+
+    .brand-mark img {
+      position: absolute;
+      top: -91.04%;
+      left: -25.6%;
+      width: 151.36%;
+      max-width: none;
+      height: auto;
+    }
+
+    .brand-copy {
+      display: grid;
+      gap: 1px;
+      line-height: 1;
+    }
+
+    .brand-copy strong {
+      color: var(--gold-light);
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .brand-copy span {
+      color: #918a7f;
+      font-size: 0.5rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .button {
+      min-height: 52px;
+      padding: 15px 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold) 58%, #9b792d);
+      color: #151109;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      line-height: 1.2;
+      text-align: center;
+      text-transform: uppercase;
+      transition: filter 160ms ease, transform 160ms ease;
+    }
+
+    .button:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .button-small {
+      min-height: 44px;
+      padding: 10px 13px;
+      flex: 0 0 auto;
+      font-size: 0.64rem;
+      white-space: nowrap;
+    }
+
+    .cta-label-long {
+      display: none;
+    }
+
+    .cta-label-short {
+      display: inline;
+    }
+
+    .hero {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 82% 20%, rgba(201, 165, 75, 0.11), transparent 34%),
+        linear-gradient(180deg, #0d0d0d 0%, var(--black) 100%);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -22% -42% 24%;
+      z-index: -1;
+      height: 360px;
+      border-radius: 50%;
+      background: rgba(201, 165, 75, 0.04);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      width: min(100%, var(--content));
+      margin: 0 auto;
+      padding: 48px 20px 54px;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.25em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 26px;
+      height: 1px;
+      flex: 0 0 auto;
+      background: currentColor;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2 {
+      font-family: "Cormorant Garamond", Georgia, serif;
+    }
+
+    h1 {
+      max-width: 660px;
+      margin-bottom: 18px;
+      font-size: clamp(3.55rem, 17vw, 4.2rem);
+      font-weight: 500;
+      letter-spacing: -0.025em;
+      line-height: 0.82;
+    }
+
+    h1 span {
+      display: block;
+      color: var(--gold-light);
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .hero-copy {
+      max-width: 500px;
+      margin-bottom: 22px;
+      color: var(--muted);
+      font-size: clamp(0.96rem, 4vw, 1.08rem);
+      line-height: 1.58;
+      text-wrap: pretty;
+    }
+
+    .hero-actions {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .instagram-link {
+      min-height: 44px;
+      padding: 10px 0;
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      border-bottom: 1px solid rgba(201, 165, 75, 0.38);
+      color: var(--gold-light);
+      font-size: 0.84rem;
+      font-weight: 500;
+      line-height: 1.4;
+      transition: border-color 160ms ease, color 160ms ease;
+    }
+
+    .instagram-link:hover {
+      border-color: var(--gold-light);
+      color: var(--ivory);
+    }
+
+    .facts {
+      background: linear-gradient(180deg, #0f0f0f 0%, #0c0c0c 100%);
+    }
+
+    .section-inner {
+      width: min(100%, var(--content));
+      margin: 0 auto;
+      padding: 54px 20px;
+    }
+
+    .section-heading {
+      max-width: 560px;
+      margin-bottom: 24px;
+    }
+
+    .section-heading h2 {
+      margin-bottom: 0;
+      font-size: clamp(2.25rem, 9vw, 3.6rem);
+      font-weight: 500;
+      line-height: 1;
+      text-wrap: balance;
+    }
+
+    .fact-list {
+      display: grid;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .fact-item {
+      padding: 22px 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .fact-item + .fact-item {
+      border-top: 1px solid var(--line);
+    }
+
+    .fact-label,
+    .fact-item h3 {
+      margin: 0;
+    }
+
+    .fact-label {
+      color: #8e877b;
+      font-size: 0.67rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .fact-item h3 {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.8rem;
+      font-weight: 500;
+      line-height: 1.08;
+    }
+
+    .fact-item p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .text-link {
+      padding-bottom: 5px;
+      border-bottom: 1px solid rgba(201, 165, 75, 0.45);
+      color: var(--gold-light);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+    }
+
+    .booking {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(201, 165, 75, 0.1), transparent 46%),
+        var(--black);
+    }
+
+    .booking .section-inner {
+      padding-block: 58px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .booking h2 {
+      max-width: 620px;
+      margin-bottom: 14px;
+      font-size: clamp(2.55rem, 11vw, 4.4rem);
+      font-weight: 500;
+      line-height: 0.92;
+      text-wrap: balance;
+    }
+
+    .booking p {
+      max-width: 520px;
+      margin-bottom: 22px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .site-footer {
+      background: #080808;
+    }
+
+    .footer-inner {
+      width: min(100%, var(--content));
+      margin: 0 auto;
+      padding: 26px 20px 30px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px 28px;
+    }
+
+    .footer-copy {
+      margin-bottom: 0;
+      color: #817a70;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    .footer-copy span {
+      display: block;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+    }
+
+    @media (max-width: 399px) {
+      .header-inner,
+      .hero-inner,
+      .section-inner,
+      .footer-inner {
+        padding-inline: 16px;
+      }
+
+      .button-small {
+        padding-inline: 13px;
+        letter-spacing: 0.08em;
+      }
+    }
+
+    @media (min-width: 400px) {
+      .cta-label-short {
+        display: none;
+      }
+
+      .cta-label-long {
+        display: inline;
+      }
+    }
+
+    @media (min-width: 560px) {
+      .hero-actions {
+        width: auto;
+        flex-direction: row;
+        align-items: center;
+        gap: 22px;
+      }
+
+      .fact-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .fact-item {
+        padding: 26px 28px;
+      }
+
+      .fact-item:first-child {
+        padding-left: 0;
+      }
+
+      .fact-item + .fact-item {
+        border-top: 0;
+        border-left: 1px solid var(--line);
+      }
+
+      .booking .button {
+        min-width: 210px;
+      }
+
+      .footer-inner {
+        grid-template-columns: 1fr auto;
+        align-items: end;
+      }
+    }
+
+    @media (min-width: 700px) {
+      .header-inner {
+        min-height: 66px;
+        padding-inline: 28px;
+      }
+
+      .brand-mark {
+        width: 40px;
+        flex-basis: 40px;
+      }
+
+      .brand-copy strong {
+        font-size: 1.1rem;
+      }
+
+      .hero-inner {
+        min-height: 0;
+        padding: 70px 28px 74px;
+      }
+
+      .hero-content {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
+        grid-template-rows: auto auto auto;
+        column-gap: 42px;
+        align-items: end;
+      }
+
+      .hero-content .eyebrow {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .hero-content h1 {
+        grid-column: 1;
+        grid-row: 2 / 4;
+        margin-bottom: 0;
+        font-size: clamp(5rem, 11vw, 6.1rem);
+      }
+
+      .hero-copy {
+        grid-column: 2;
+        grid-row: 2;
+        margin-bottom: 24px;
+        font-size: 1rem;
+      }
+
+      .hero-actions {
+        grid-column: 2;
+        grid-row: 3;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .section-inner {
+        padding: 68px 28px;
+      }
+
+      .booking .section-inner {
+        padding-block: 68px;
+      }
+
+      .footer-inner {
+        padding: 30px 28px 34px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#inicio" aria-label="Evolution Studio, inicio">
+        <span class="brand-mark" aria-hidden="true">
+          <img src="assets/reference/evolution-logo-instagram.jpeg" alt="">
+        </span>
+        <span class="brand-copy">
+          <strong>Evolution</strong>
+          <span>Studio</span>
+        </span>
+      </a>
+      <a class="button button-small" href="https://vortexa.cl/saas/evolution/gestion_horas/reservar" target="_blank" rel="noopener noreferrer" aria-label="Reservar hora">
+        <span class="cta-label-short">Reservar</span>
+        <span class="cta-label-long">Reservar hora</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section id="inicio" class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <p class="eyebrow">Quinta de Tilcoco</p>
+          <h1 id="hero-title">Evolution <span>Studio</span></h1>
+          <p class="hero-copy">Reserva tu hora en la agenda online del estudio y conoce sus trabajos en Instagram.</p>
+          <div class="hero-actions">
+            <a class="button" href="https://vortexa.cl/saas/evolution/gestion_horas/reservar" target="_blank" rel="noopener noreferrer">Reservar hora</a>
+            <a class="instagram-link" href="https://instagram.com/evolution_barbercut" target="_blank" rel="noopener noreferrer">Ver trabajos en Instagram →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="facts" aria-labelledby="facts-title">
+      <div class="section-inner">
+        <div class="section-heading">
+          <p class="eyebrow">Información confirmada</p>
+          <h2 id="facts-title">Datos del estudio</h2>
+        </div>
+        <div class="fact-list">
+          <div class="fact-item">
+            <span class="fact-label">Dirección</span>
+            <div>
+              <h3>Quinta de Tilcoco</h3>
+              <p>Avenida Argomedo 1591, Local C</p>
+            </div>
+          </div>
+          <div class="fact-item">
+            <span class="fact-label">Instagram</span>
+            <div>
+              <h3>Instagram</h3>
+              <a class="text-link" href="https://instagram.com/evolution_barbercut" target="_blank" rel="noopener noreferrer">@evolution_barbercut</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="booking" aria-labelledby="booking-title">
+      <div class="section-inner">
+        <p class="eyebrow">Agenda online</p>
+        <h2 id="booking-title">Reserva tu próxima hora</h2>
+        <p>Continúa en la agenda online enlazada por el estudio.</p>
+        <a class="button" href="https://vortexa.cl/saas/evolution/gestion_horas/reservar" target="_blank" rel="noopener noreferrer">Reservar hora</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-copy">
+        <span class="footer-location">Quinta de Tilcoco</span>
+        <span class="footer-address">Avenida Argomedo 1591, Local C</span>
+      </p>
+      <div class="footer-links">
+        <a class="text-link" href="https://instagram.com/evolution_barbercut" target="_blank" rel="noopener noreferrer">Instagram</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

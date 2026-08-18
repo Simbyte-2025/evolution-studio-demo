@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #EFE7DA; }
+  a { color: #C4623C; }
+  a:hover { color: #9C4A2B; }
+  input, textarea { font-family: 'Plus Jakarta Sans', sans-serif; }
+  input:focus, textarea:focus { outline: 2px solid #3E6B5A; outline-offset: 1px; }
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #EFE7DA; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #22322C; display: flex; flex-direction: column; align-items: center; gap: 28px; padding: 56px 24px 72px">
+
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; max-width: 520px">
+    <div style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #8A7F6E">Simbyte · muestra visual</div>
+    <div style="font-family: 'Instrument Serif', serif; font-size: 44px; line-height: 1.05">Reserva de horas para Mi&nbsp;Flow</div>
+    <div style="font-size: 15px; line-height: 1.6; color: #5C5346; text-wrap: pretty">Un link que la clienta abre desde Instagram y agenda sola, a cualquier hora. Los servicios y precios son de ejemplo.</div>
+  </div>
+
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+    <div style="height: 100%; display: flex; flex-direction: column; background: #FBF7F0; padding-top: 62px; box-sizing: border-box">
+
+      <sc-if value="{{ showTopBar }}">
+        <div style="padding: 10px 20px 14px; display: flex; align-items: center; gap: 14px; background: #FBF7F0; border-bottom: 1px solid #EAE0D0">
+          <div onClick="{{ onBack }}" style="width: 34px; height: 34px; border-radius: 17px; background: #F0E8DA; display: flex; align-items: center; justify-content: center; font-size: 17px; color: #3E6B5A; cursor: pointer; flex: none">←</div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+            <div style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A7F6E">{{ stepLabel }}</div>
+            <div style="height: 4px; border-radius: 2px; background: #EAE0D0; overflow: hidden">
+              <div style="{{ progressStyle }}"></div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="flex: 1; overflow-y: auto">
+
+        <sc-if value="{{ showCover }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column">
+            <div style="background: #22322C; padding: 40px 24px 34px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+              <div style="width: 78px; height: 78px; border-radius: 39px; background: #E9DEC9; display: flex; align-items: center; justify-content: center; font-family: 'Instrument Serif', serif; font-size: 30px; color: #22322C">MF</div>
+              <div style="font-family: 'Instrument Serif', serif; font-size: 34px; color: #FBF7F0; line-height: 1.1">Mi Flow</div>
+              <div style="font-size: 14px; color: #B9C7BF; line-height: 1.5">Estética canina · baño, corte y bienestar<br>para cada mascota</div>
+            </div>
+            <div style="padding: 26px 24px 20px; display: flex; flex-direction: column; gap: 12px">
+              <div style="font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A7F6E">Cómo funciona</div>
+              <div style="display: flex; gap: 14px; align-items: flex-start">
+                <div style="width: 26px; height: 26px; border-radius: 13px; background: #E9DEC9; color: #3E6B5A; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex: none">1</div>
+                <div style="font-size: 15px; line-height: 1.45; color: #3D3830">Elige el servicio y el tamaño de tu mascota</div>
+              </div>
+              <div style="display: flex; gap: 14px; align-items: flex-start">
+                <div style="width: 26px; height: 26px; border-radius: 13px; background: #E9DEC9; color: #3E6B5A; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex: none">2</div>
+                <div style="font-size: 15px; line-height: 1.45; color: #3D3830">Escoge el día y la hora disponible</div>
+              </div>
+              <div style="display: flex; gap: 14px; align-items: flex-start">
+                <div style="width: 26px; height: 26px; border-radius: 13px; background: #E9DEC9; color: #3E6B5A; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex: none">3</div>
+                <div style="font-size: 15px; line-height: 1.45; color: #3D3830">Recibes la confirmación y el recordatorio por WhatsApp</div>
+              </div>
+            </div>
+            <div style="margin: 8px 24px 0; padding: 16px 18px; border-radius: 16px; background: #F2EADC; display: flex; flex-direction: column; gap: 4px">
+              <div style="font-size: 14px; font-weight: 600">Horario de atención</div>
+              <div style="font-size: 14px; color: #6B6355; line-height: 1.5">Martes a sábado, 09:00 a 19:00</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showService }}">
+          <div style="padding: 22px 20px 12px; display: flex; flex-direction: column; gap: 12px">
+            <div style="font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1.15">¿Qué servicio necesitas?</div>
+            <sc-for list="{{ services }}" as="s" hint-placeholder-count="4">
+              <div onClick="{{ s.onSelect }}" style="{{ s.cardStyle }}">
+                <div style="display: flex; flex-direction: column; gap: 3px; flex: 1">
+                  <div style="font-size: 16px; font-weight: 600">{{ s.name }}</div>
+                  <div style="font-size: 13px; color: #6B6355">{{ s.desc }}</div>
+                  <div style="font-size: 13px; color: #8A7F6E">{{ s.dur }}</div>
+                </div>
+                <div style="font-size: 16px; font-weight: 600; color: #3E6B5A; white-space: nowrap">{{ s.priceLabel }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showSize }}">
+          <div style="padding: 22px 20px 12px; display: flex; flex-direction: column; gap: 12px">
+            <div style="font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1.15">Tamaño de tu mascota</div>
+            <div style="font-size: 14px; color: #6B6355; line-height: 1.5; margin-bottom: 2px">El valor final depende del porte y del tipo de pelaje.</div>
+            <sc-for list="{{ sizes }}" as="z" hint-placeholder-count="4">
+              <div onClick="{{ z.onSelect }}" style="{{ z.cardStyle }}">
+                <div style="display: flex; flex-direction: column; gap: 3px; flex: 1">
+                  <div style="font-size: 16px; font-weight: 600">{{ z.name }}</div>
+                  <div style="font-size: 13px; color: #6B6355">{{ z.range }}</div>
+                </div>
+                <div style="font-size: 14px; color: #8A7F6E; white-space: nowrap">{{ z.extraLabel }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showWhen }}">
+          <div style="padding: 22px 20px 12px; display: flex; flex-direction: column; gap: 16px">
+            <div style="font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1.15">Día y hora</div>
+            <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px">
+              <sc-for list="{{ days }}" as="d" hint-placeholder-count="6">
+                <div onClick="{{ d.onSelect }}" style="{{ d.cardStyle }}">
+                  <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.75">{{ d.dow }}</div>
+                  <div style="font-size: 19px; font-weight: 600">{{ d.num }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A7F6E">Horas disponibles</div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px">
+                <sc-for list="{{ slots }}" as="t" hint-placeholder-count="9">
+                  <div onClick="{{ t.onSelect }}" style="{{ t.cardStyle }}">{{ t.label }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showForm }}">
+          <div style="padding: 22px 20px 12px; display: flex; flex-direction: column; gap: 16px">
+            <div style="font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1.15">Tus datos</div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="font-size: 13px; color: #6B6355">Nombre y apellido</div>
+              <input value="{{ form.nombre }}" onChange="{{ onNombre }}" placeholder="Camila Rojas" style="border: 1px solid #E0D5C2; border-radius: 12px; padding: 13px 14px; font-size: 16px; background: #FFFDF9; color: #22322C">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="font-size: 13px; color: #6B6355">WhatsApp</div>
+              <input value="{{ form.fono }}" onChange="{{ onFono }}" placeholder="+56 9 1234 5678" style="border: 1px solid #E0D5C2; border-radius: 12px; padding: 13px 14px; font-size: 16px; background: #FFFDF9; color: #22322C">
+            </div>
+            <div style="display: flex; gap: 12px">
+              <div style="display: flex; flex-direction: column; gap: 6px; flex: 1">
+                <div style="font-size: 13px; color: #6B6355">Nombre de la mascota</div>
+                <input value="{{ form.mascota }}" onChange="{{ onMascota }}" placeholder="Kira" style="border: 1px solid #E0D5C2; border-radius: 12px; padding: 13px 14px; font-size: 16px; background: #FFFDF9; color: #22322C; width: 100%; box-sizing: border-box">
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="font-size: 13px; color: #6B6355">Algo que debamos saber (opcional)</div>
+              <textarea value="{{ form.notas }}" onChange="{{ onNotas }}" rows="3" placeholder="Se pone nerviosa con el secador" style="border: 1px solid #E0D5C2; border-radius: 12px; padding: 13px 14px; font-size: 16px; background: #FFFDF9; color: #22322C; resize: none"></textarea>
+            </div>
+            <div style="padding: 14px 16px; border-radius: 14px; background: #F2EADC; display: flex; flex-direction: column; gap: 4px">
+              <div style="font-size: 13px; color: #6B6355">Resumen</div>
+              <div style="font-size: 15px; font-weight: 600; line-height: 1.45">{{ summaryLine }}</div>
+              <div style="font-size: 15px; color: #3E6B5A; font-weight: 600">{{ totalLabel }}</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showDone }}">
+          <div style="padding: 46px 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center">
+            <div style="width: 76px; height: 76px; border-radius: 38px; background: #3E6B5A; color: #FBF7F0; font-size: 34px; display: flex; align-items: center; justify-content: center">✓</div>
+            <div style="font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1.15">Hora reservada</div>
+            <div style="font-size: 15px; color: #6B6355; line-height: 1.55">Te enviamos la confirmación por WhatsApp y un recordatorio el día anterior.</div>
+            <div style="width: 100%; margin-top: 8px; padding: 20px; border-radius: 18px; background: #F2EADC; display: flex; flex-direction: column; gap: 14px; text-align: left">
+              <div style="display: flex; justify-content: space-between; gap: 16px">
+                <div style="font-size: 14px; color: #6B6355">Servicio</div>
+                <div style="font-size: 14px; font-weight: 600; text-align: right">{{ doneService }}</div>
+              </div>
+              <div style="display: flex; justify-content: space-between; gap: 16px">
+                <div style="font-size: 14px; color: #6B6355">Mascota</div>
+                <div style="font-size: 14px; font-weight: 600; text-align: right">{{ donePet }}</div>
+              </div>
+              <div style="display: flex; justify-content: space-between; gap: 16px">
+                <div style="font-size: 14px; color: #6B6355">Cuándo</div>
+                <div style="font-size: 14px; font-weight: 600; text-align: right">{{ doneWhen }}</div>
+              </div>
+              <div style="height: 1px; background: #E0D5C2"></div>
+              <div style="display: flex; justify-content: space-between; gap: 16px">
+                <div style="font-size: 14px; color: #6B6355">Total estimado</div>
+                <div style="font-size: 16px; font-weight: 700; color: #3E6B5A">{{ totalLabel }}</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <div style="padding: 14px 20px 22px; background: #FBF7F0; border-top: 1px solid #EAE0D0; display: flex; flex-direction: column; gap: 10px">
+        <div onClick="{{ onCta }}" style="{{ ctaStyle }}">{{ ctaLabel }}</div>
+        <sc-if value="{{ showFooterNote }}">
+          <div style="text-align: center; font-size: 13px; color: #8A7F6E">{{ footerNote }}</div>
+        </sc-if>
+      </div>
+
+    </div>
+  </x-import>
+
+  <div style="max-width: 460px; text-align: center; font-size: 14px; line-height: 1.6; color: #6B6355">
+    La reserva queda en la agenda del negocio y el link se comparte en la bio de Instagram, igual que en el ejemplo que vimos.
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 520, &quot;height&quot;: 1100}}">
+const SERVICES = [
+  { id: 'bano', name: 'Baño y secado', desc: 'Baño, secado y perfume', dur: '45 min', price: 12000 },
+  { id: 'corte', name: 'Baño + corte', desc: 'Corte a máquina o tijera', dur: '1 h 30 min', price: 22000 },
+  { id: 'deslanado', name: 'Deslanado', desc: 'Para pelaje de doble capa', dur: '1 h', price: 18000 },
+  { id: 'spa', name: 'Spa relajo', desc: 'Baño, masaje e hidratación', dur: '1 h 15 min', price: 26000 }
+];
+const SIZES = [
+  { id: 'p', name: 'Pequeño', range: 'Hasta 10 kg', extra: 0 },
+  { id: 'm', name: 'Mediano', range: '10 a 20 kg', extra: 3000 },
+  { id: 'g', name: 'Grande', range: '20 a 35 kg', extra: 6000 },
+  { id: 'xg', name: 'Gigante', range: 'Más de 35 kg', extra: 9000 }
+];
+const DAYS = [
+  { id: 'd1', dow: 'Mar', num: '11', full: 'martes 11 de agosto' },
+  { id: 'd2', dow: 'Mié', num: '12', full: 'miércoles 12 de agosto' },
+  { id: 'd3', dow: 'Jue', num: '13', full: 'jueves 13 de agosto' },
+  { id: 'd4', dow: 'Vie', num: '14', full: 'viernes 14 de agosto' },
+  { id: 'd5', dow: 'Sáb', num: '15', full: 'sábado 15 de agosto' },
+  { id: 'd6', dow: 'Mar', num: '18', full: 'martes 18 de agosto' }
+];
+const SLOTS = ['09:00', '10:00', '11:00', '12:00', '15:00', '16:00', '17:00', '17:45', '18:30'];
+const TAKEN = { d1: ['10:00', '15:00'], d2: ['09:00', '17:45'], d3: ['12:00'], d4: ['09:00', '10:00', '16:00'], d5: ['11:00', '15:00', '17:00'], d6: [] };
+
+const money = n => '$' + n.toLocaleString('es-CL');
+
+const CARD = 'display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 16px; cursor: pointer; transition: all .18s ease; border: 1.5px solid ';
+
+class Component extends DCLogic {
+  state = { step: 0, service: null, size: null, day: 'd1', slot: null, nombre: '', fono: '', mascota: '', notas: '' };
+
+  set(patch) { this.setState(patch); }
+
+  total() {
+    const s = SERVICES.find(x => x.id === this.state.service);
+    const z = SIZES.find(x => x.id === this.state.size);
+    return (s ? s.price : 0) + (z ? z.extra : 0);
+  }
+
+  canContinue() {
+    const st = this.state;
+    if (st.step === 1) return !!st.service;
+    if (st.step === 2) return !!st.size;
+    if (st.step === 3) return !!st.slot;
+    if (st.step === 4) return st.nombre.trim().length > 1 && st.fono.trim().length > 5 && st.mascota.trim().length > 0;
+    return true;
+  }
+
+  renderVals() {
+    const st = this.state;
+    const enabled = this.canContinue();
+    const svc = SERVICES.find(x => x.id === st.service);
+    const size = SIZES.find(x => x.id === st.size);
+    const day = DAYS.find(x => x.id === st.day);
+
+    const sel = (on, base) => CARD + (on ? '#3E6B5A; background: #E9F0EB;' : '#EAE0D0; background: #FFFDF9;');
+
+    return {
+      showCover: st.step === 0,
+      showService: st.step === 1,
+      showSize: st.step === 2,
+      showWhen: st.step === 3,
+      showForm: st.step === 4,
+      showDone: st.step === 5,
+      showTopBar: st.step >= 1 && st.step <= 4,
+      stepLabel: 'Paso ' + Math.max(st.step, 1) + ' de 4',
+      progressStyle: 'height: 100%; border-radius: 2px; background: #3E6B5A; transition: width .3s ease; width: ' + (st.step / 4 * 100) + '%',
+
+      services: SERVICES.map(s => ({
+        name: s.name, desc: s.desc, dur: s.dur, priceLabel: 'desde ' + money(s.price),
+        cardStyle: sel(st.service === s.id),
+        onSelect: () => this.set({ service: s.id })
+      })),
+      sizes: SIZES.map(z => ({
+        name: z.name, range: z.range,
+        extraLabel: z.extra ? '+ ' + money(z.extra) : 'sin recargo',
+        cardStyle: sel(st.size === z.id),
+        onSelect: () => this.set({ size: z.id })
+      })),
+      days: DAYS.map(d => ({
+        dow: d.dow, num: d.num,
+        cardStyle: 'flex: none; width: 62px; padding: 12px 0; border-radius: 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: all .18s ease; border: 1.5px solid ' +
+          (st.day === d.id ? '#3E6B5A; background: #3E6B5A; color: #FBF7F0;' : '#EAE0D0; background: #FFFDF9; color: #22322C;'),
+        onSelect: () => this.set({ day: d.id, slot: null })
+      })),
+      slots: SLOTS.map(t => {
+        const taken = (TAKEN[st.day] || []).indexOf(t) >= 0;
+        const on = st.slot === t;
+        return {
+          label: t,
+          cardStyle: 'padding: 13px 0; text-align: center; font-size: 15px; font-weight: 500; border-radius: 12px; transition: all .18s ease; border: 1.5px solid ' +
+            (taken ? '#F0E8DA; background: #F5F0E6; color: #BEB5A4; text-decoration: line-through; cursor: default;'
+              : on ? '#3E6B5A; background: #3E6B5A; color: #FBF7F0; cursor: pointer;'
+                : '#EAE0D0; background: #FFFDF9; color: #22322C; cursor: pointer;'),
+          onSelect: () => { if (!taken) this.set({ slot: t }); }
+        };
+      }),
+
+      form: { nombre: st.nombre, fono: st.fono, mascota: st.mascota, notas: st.notas },
+      onNombre: e => this.set({ nombre: e.target.value }),
+      onFono: e => this.set({ fono: e.target.value }),
+      onMascota: e => this.set({ mascota: e.target.value }),
+      onNotas: e => this.set({ notas: e.target.value }),
+
+      summaryLine: (svc ? svc.name : '—') + (size ? ' · ' + size.name : '') + (day && st.slot ? ' · ' + day.dow + ' ' + day.num + ', ' + st.slot : ''),
+      totalLabel: money(this.total()),
+      doneService: svc ? svc.name + (size ? ' · ' + size.name : '') : '—',
+      donePet: st.mascota || 'Tu mascota',
+      doneWhen: day ? day.full.charAt(0).toUpperCase() + day.full.slice(1) + ', ' + (st.slot || '') : '',
+
+      ctaLabel: st.step === 0 ? 'Reservar hora' : st.step === 4 ? 'Confirmar reserva' : st.step === 5 ? 'Reservar otra hora' : 'Continuar',
+      ctaStyle: 'padding: 16px; border-radius: 14px; text-align: center; font-size: 16px; font-weight: 600; transition: all .18s ease; ' +
+        (enabled ? 'background: #22322C; color: #FBF7F0; cursor: pointer;' : 'background: #E7DFD1; color: #A79E8E; cursor: default;'),
+      onCta: () => {
+        if (!enabled) return;
+        if (st.step === 5) this.setState({ step: 0, service: null, size: null, slot: null, nombre: '', fono: '', mascota: '', notas: '' });
+        else this.set({ step: st.step + 1 });
+      },
+      onBack: () => this.set({ step: Math.max(0, st.step - 1) }),
+      showFooterNote: st.step === 0 || st.step === 5,
+      footerNote: st.step === 0 ? 'Toma menos de un minuto' : 'Puedes reagendar hasta 4 horas antes'
+    };
+  }
+}
+
+</script>
+</body>
+</html>

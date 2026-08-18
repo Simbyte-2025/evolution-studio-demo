@@ -1,0 +1,9 @@
+{
+  "name": "evolution-studio-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-sites.mjs",
+    "test": "python3 -m unittest discover -s tests -v"
+  }
+}
