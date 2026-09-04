@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Demo interactiva de reserva de Evolution Studio. No crea reservas reales ni guarda datos.">
+<title>Reservar — Evolution Studio</title>
+<link href="assets/fonts.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/bootstrap-icons.css">
+<style>
+:root {
+  --bg:         #090909;
+  --bg-soft:    #0f0f0f;
+  --surface:    #141311;
+  --surface-2:  #0f0f0f;
+  --border:     #2d2922;
+  --border-2:   rgba(201,165,75,.22);
+  --gold:       #c9a54b;
+  --gold-light: #ead07f;
+  --gold-dim:   rgba(201,165,75,0.10);
+  --gold-border:rgba(234,208,127,0.42);
+  --text:       #f4f0e8;
+  --text-muted: #b4aea4;
+  --text-dim:   #918a7f;
+  --primary-gradient:linear-gradient(135deg,#ead07f,#c9a54b 58%,#9b792d);
+  --ease-out: cubic-bezier(0.23,1,0.32,1);
+  --ease-io:  cubic-bezier(0.77,0,0.175,1);
+  --r:  4px;
+  --rs: 2px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(circle at 80% 14%,rgba(201,165,75,.055),transparent 33rem),
+    radial-gradient(circle at 14% 76%,rgba(234,208,127,.025),transparent 28rem),
+    var(--bg);
+  color:var(--text);
+  font-family:'Jost',sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:contain;
+}
+button,input,textarea{font:inherit}
+button{color:inherit}
+
+/* ═══════════════════════════ HEADER ══════════════════════════════ */
+.gh-header{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  min-height:86px;
+  display:flex;flex-direction:column;align-items:stretch;justify-content:center;
+  padding:8px 20px 7px;
+  background:rgba(9,9,9,0.94);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(201,165,75,.18);
+}
+.gh-header-inner{
+  width:min(100%,1120px);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.gh-brand{
+  display:inline-flex;align-items:center;gap:10px;
+  color:inherit;text-decoration:none;
+}
+.gh-brand-mark{
+  width:36px;height:36px;position:relative;overflow:hidden;
+  flex:0 0 36px;border-radius:50%;
+  border:1px solid rgba(234,208,127,.32);
+  background:#000;
+}
+.gh-home-link{
+  min-height:44px;display:inline-flex;align-items:center;gap:7px;
+  color:var(--gold-light);text-decoration:none;
+  border-bottom:1px solid rgba(201,165,75,.38);
+  font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+}
+.gh-demo-status{
+  width:min(100%,1120px);margin:5px auto 0;text-align:center;
+  color:var(--text-muted);font-size:.68rem;letter-spacing:.04em;
+}
+.gh-brand-mark img{
+  position:absolute;top:-91.04%;left:-25.6%;width:151.36%;height:auto;
+  max-width:none;display:block;
+}
+.gh-brand-copy{display:flex;align-items:baseline;gap:7px;white-space:nowrap}
+.gh-brand-copy strong{
+  font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--gold-light);
+}
+.gh-brand-copy span{
+  font-size:.56rem;font-weight:500;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--text-dim);
+}
+
+/* ═══════════════════════════ STEPPER ═════════════════════════════ */
+.gh-stepper{
+  position:fixed;top:86px;left:0;right:0;z-index:50;
+  background:rgba(9,9,9,.96);
+  padding:12px 24px 10px;
+  border-bottom:1px solid rgba(201,165,75,.12);
+}
+.gh-step-row{
+  display:flex;align-items:center;
+  max-width:400px;margin:0 auto;
+}
+.gh-step-i{
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;flex:1;
+}
+.gh-step-i:not(:last-child)::after{
+  content:'';position:absolute;
+  top:13px;left:60%;right:-40%;
+  height:1px;background:var(--border-2);
+  transition:background 400ms var(--ease-out);
+}
+.gh-step-i.done::after{background:var(--gold)}
+.gh-step-n{
+  width:26px;height:26px;border-radius:50%;
+  border:1.5px solid var(--border-2);
+  color:var(--text-dim);background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;font-weight:600;
+  position:relative;z-index:1;
+  transition:all 280ms var(--ease-out);
+}
+.gh-step-i.active .gh-step-n{
+  border-color:var(--gold);color:var(--gold);
+  background:var(--gold-dim);
+  box-shadow:0 0 0 3px rgba(201,165,75,.12);
+}
+.gh-step-i.done .gh-step-n{
+  background:rgba(201,165,75,.72);border-color:rgba(234,208,127,.72);color:var(--bg);
+}
+.gh-step-l{
+  font-size:.56rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--text-dim);margin-top:4px;
+  transition:color 280ms;
+}
+.gh-step-i.active .gh-step-l{color:var(--gold)}
+.gh-step-i.done .gh-step-l{color:rgba(201,165,75,.7)}
+
+/* ═══════════════════════════ LAYOUT ══════════════════════════════ */
+.gh-main{
+  padding-top:calc(86px + 66px);
+  padding-bottom:140px;
+  max-width:540px;margin:0 auto;
+}
+.gh-section{display:none}
+.gh-section.active{
+  display:block;
+  animation:fadeUp 320ms var(--ease-out) both;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.gh-page-head{
+  padding:30px 20px 22px;border-bottom:1px solid var(--border);
+  background:radial-gradient(circle at 82% 20%,rgba(201,165,75,.11),transparent 34%),linear-gradient(180deg,#0d0d0d,var(--bg));
+}
+.gh-step-tag{
+  display:flex;align-items:center;gap:10px;
+  font-size:.68rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;
+}
+.gh-step-tag::before{content:'';width:26px;height:1px;background:currentColor;flex:0 0 auto}
+.gh-page-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.9rem,13vw,3.5rem);font-weight:500;line-height:.92;letter-spacing:-.02em;
+}
+.gh-page-sub{font-size:1rem;color:var(--text-muted);margin-top:10px;letter-spacing:.01em}
+.gh-data-note{margin-top:12px;color:var(--gold-light);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
+.gh-flow-message{
+  display:none;margin:14px 20px 0;padding:11px 14px;
+  border:1px solid rgba(201,165,75,.34);background:var(--gold-dim);
+  color:var(--gold-light);font-size:.86rem;
+}
+.gh-flow-message.vis{display:block}
+.gh-pad{padding:0 20px}
+
+/* ═══════════════════════════ CARDS SERVICIO ══════════════════════ */
+.gh-svc-grid{
+  display:flex;flex-direction:column;
+  gap:10px;padding:0 20px 12px;
+}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.gh-svc-card{
+  width:100%;text-align:left;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:15px 16px;
+  cursor:pointer;
+  position:relative;
+  display:flex;align-items:center;gap:14px;
+  transition:border-color 220ms var(--ease-out),
+             background 220ms var(--ease-out),
+             transform 140ms var(--ease-out);
+  animation:cardIn 340ms var(--ease-out) both;
+}
+.gh-svc-card:nth-child(1){animation-delay:0ms}
+.gh-svc-card:nth-child(2){animation-delay:55ms}
+.gh-svc-card:nth-child(3){animation-delay:110ms}
+.gh-svc-card:nth-child(4){animation-delay:165ms}
+.gh-svc-card:nth-child(5){animation-delay:220ms}
+@media(hover:hover)and(pointer:fine){
+  .gh-svc-card:hover{border-color:var(--gold-border);background:var(--surface-2)}
+}
+.gh-svc-card:active{transform:scale(.98)}
+.gh-svc-card.sel{
+  border-color:var(--gold);
+  background:radial-gradient(circle at 88% 12%,rgba(234,208,127,.10),transparent 45%),linear-gradient(120deg,rgba(201,165,75,.095),rgba(20,19,17,.98) 62%);
+}
+
+.gh-svc-icon-wrap{
+  width:44px;height:44px;border-radius:3px;flex-shrink:0;
+  background:var(--surface-2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.15rem;color:var(--text-muted);
+  transition:color 220ms,background 220ms;
+}
+.gh-svc-card.sel .gh-svc-icon-wrap{color:var(--gold-light);background:rgba(201,165,75,.12)}
+
+.gh-svc-body{flex:1;min-width:0}
+.gh-svc-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.16rem;font-weight:500;line-height:1.2;
+  margin-bottom:3px;transition:color 220ms;
+}
+.gh-svc-card.sel .gh-svc-name{color:var(--gold-light)}
+.gh-svc-desc{font-size:.75rem;color:var(--text-muted);line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.gh-svc-price-col{
+  text-align:right;flex-shrink:0;padding-left:8px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:3px;
+}
+.gh-svc-price{
+  font-family:'Jost',sans-serif;
+  font-size:.9rem;font-weight:600;line-height:1;
+  color:var(--text);
+  transition:color 220ms;
+}
+.gh-svc-card.sel .gh-svc-price{color:var(--gold-light)}
+.gh-svc-dur{
+  font-size:.72rem;font-weight:500;
+  color:var(--text-muted);
+  background:var(--surface-2);
+  border-radius:4px;padding:2px 7px;
+}
+.gh-svc-card.sel .gh-svc-dur{background:rgba(201,165,75,.1);color:var(--gold)}
+
+/* Checkmark */
+.gh-svc-ck{
+  position:absolute;top:10px;right:10px;
+  width:17px;height:17px;border-radius:50%;
+  background:var(--gold);color:var(--bg);
+  display:none;align-items:center;justify-content:center;font-size:.55rem;
+}
+.gh-svc-card.sel .gh-svc-ck{display:flex}
+
+/* ═══════════════════════════ CARDS BARBERO ═══════════════════════ */
+.gh-barb-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;padding:0 20px 14px;
+}
+.gh-barb-card{
+  width:100%;text-align:left;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:16px 14px;
+  cursor:pointer;position:relative;
+  transition:all 220ms var(--ease-out);
+  animation:cardIn 340ms var(--ease-out) both;
+}
+.gh-barb-card:nth-child(1){animation-delay:0ms}
+.gh-barb-card:nth-child(2){animation-delay:55ms}
+.gh-barb-card:nth-child(3){animation-delay:110ms}
+.gh-barb-card:nth-child(4){animation-delay:165ms}
+@media(hover:hover)and(pointer:fine){
+  .gh-barb-card:hover{border-color:var(--gold-border);background:var(--surface-2)}
+}
+.gh-barb-card:active{transform:scale(.97)}
+.gh-barb-card.sel{
+  border-color:var(--gold);
+  background:radial-gradient(circle at 82% 10%,rgba(234,208,127,.09),transparent 48%),linear-gradient(130deg,rgba(201,165,75,.09),rgba(20,19,17,.98) 60%);
+}
+
+.gh-barb-avatar{
+  width:48px;height:48px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;
+  color:var(--bg);margin-bottom:10px;position:relative;
+  transition:box-shadow 220ms var(--ease-out);
+}
+.gh-barb-card.sel .gh-barb-avatar{box-shadow:0 0 0 3px var(--gold),0 0 0 5px rgba(201,165,75,.2)}
+.gh-barb-ck{
+  position:absolute;top:-2px;right:-2px;
+  width:17px;height:17px;border-radius:50%;
+  background:var(--gold);color:var(--bg);
+  display:none;align-items:center;justify-content:center;
+  font-size:.58rem;border:2px solid var(--bg);
+}
+.gh-barb-card.sel .gh-barb-ck{display:flex}
+.gh-barb-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.03rem;font-weight:500;line-height:1.1;
+}
+.gh-barb-title{
+  font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);margin:3px 0 8px;
+}
+.gh-barb-tags{display:flex;flex-wrap:wrap;gap:3px}
+.gh-barb-tag{
+  font-size:.62rem;padding:3px 7px;border-radius:2px;
+  border:1px solid var(--border);color:var(--text-muted);
+  transition:border-color 220ms,color 220ms;
+}
+.gh-barb-card.sel .gh-barb-tag{border-color:rgba(201,165,75,.25);color:var(--text)}
+
+/* Expertise */
+.gh-expertise{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:18px 20px;margin:0 20px 16px;
+  display:none;animation:fadeUp 300ms var(--ease-out);
+}
+.gh-expertise.vis{display:block}
+.gh-exp-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.05rem;font-weight:600;
+  color:var(--gold-light);margin-bottom:14px;
+}
+.gh-exp-stats{display:flex}
+.gh-exp-stat{flex:1;text-align:center}
+.gh-exp-stat+.gh-exp-stat{border-left:1px solid var(--border-2)}
+.gh-exp-val{
+  font-size:.88rem;font-weight:700;
+  color:var(--text);display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.gh-exp-val i{color:var(--gold);font-size:.8rem}
+.gh-exp-key{font-size:.62rem;color:var(--text-muted);margin-top:2px}
+
+/* ═══════════════════════════ CALENDARIO ══════════════════════════ */
+.gh-cal{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;margin:0 20px 20px;
+}
+.gh-cal-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;border-bottom:1px solid var(--border);
+}
+.gh-cal-month{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:500;text-transform:capitalize;
+}
+.gh-cal-btn{
+  width:32px;height:32px;border-radius:2px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;
+  transition:all 150ms var(--ease-out);
+}
+@media(hover:hover)and(pointer:fine){.gh-cal-btn:hover{border-color:var(--gold);color:var(--gold)}}
+.gh-cal-btn:active{transform:scale(.92)}
+.gh-cal-inner{padding:6px 12px 12px}
+.gh-dows,.gh-days{display:grid;grid-template-columns:repeat(7,1fr)}
+.gh-dow{
+  text-align:center;padding:5px 0;
+  font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--text-dim);
+}
+.gh-day{
+  width:100%;border:0;background:transparent;color:var(--text);
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:2px;font-family:'Cormorant Garamond',serif;font-size:.9rem;cursor:pointer;
+  transition:all 140ms var(--ease-out);position:relative;
+}
+@media(hover:hover)and(pointer:fine){
+  .gh-day:hover:not(.dis):not(.emp){background:var(--surface-2);color:var(--text)}
+}
+.gh-day:active:not(.dis):not(.emp){transform:scale(.88)}
+.gh-day.today{color:var(--gold);font-weight:700}
+.gh-day.today::after{
+  content:'';position:absolute;bottom:4px;
+  left:50%;transform:translateX(-50%);
+  width:3px;height:3px;border-radius:50%;background:var(--gold);
+}
+.gh-day.sel{background:var(--primary-gradient);color:var(--bg);font-weight:600}
+.gh-day.sel::after{display:none}
+.gh-day.dis{color:var(--text-dim);cursor:not-allowed;opacity:.3}
+.gh-day:disabled{color:var(--text-dim);cursor:not-allowed;opacity:.3}
+.gh-day.emp{cursor:default}
+
+/* Slots */
+.gh-slots-section{padding:0 20px 16px;display:none}
+.gh-slots-section.vis{display:block}
+.gh-slots-lbl{
+  font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-muted);margin-bottom:10px;
+}
+.gh-slots-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:7px;
+}
+.gh-slot{
+  width:100%;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  padding:10px 4px;text-align:center;cursor:pointer;
+  font-size:.78rem;font-weight:600;color:var(--text-muted);
+  letter-spacing:.02em;
+  transition:all 180ms var(--ease-out);
+  animation:cardIn 200ms var(--ease-out) both;
+}
+@media(hover:hover)and(pointer:fine){
+  .gh-slot:hover{border-color:rgba(201,165,75,.5);color:var(--text)}
+}
+.gh-slot:active{transform:scale(.94)}
+.gh-slot.sel{background:var(--primary-gradient);border-color:var(--gold-light);color:var(--bg);font-weight:600}
+.gh-slots-empty{
+  grid-column:1/-1;text-align:center;padding:20px;
+  color:var(--text-dim);font-size:.8rem;
+}
+
+/* ═══════════════════════════ FORMULARIO ══════════════════════════ */
+.gh-form-box{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;margin:0 20px 14px;
+}
+.gh-form-box-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.24rem;font-weight:500;margin-bottom:18px;
+}
+.gh-field{margin-bottom:13px}
+.gh-field label{
+  display:block;font-size:.68rem;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;
+}
+.gh-field input,.gh-field textarea{
+  width:100%;
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:var(--rs);
+  color:var(--text);
+  padding:12px 14px;
+  font-family:'Jost',sans-serif;font-size:.88rem;
+  transition:border-color 200ms var(--ease-out);outline:none;
+  -webkit-appearance:none;
+}
+.gh-field input::placeholder,.gh-field textarea::placeholder{color:var(--text-dim)}
+.gh-field input:focus,.gh-field textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,165,75,.10)}
+.gh-field textarea{resize:none}
+
+/* Resumen cita */
+.gh-resumen{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;margin:0 20px 14px;
+}
+.gh-res-header{
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+.gh-res-row{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-bottom:1px solid var(--border);
+}
+.gh-res-row:last-child{border-bottom:none}
+.gh-res-icon{
+  width:34px;height:34px;border-radius:2px;background:var(--surface-2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;color:var(--gold);flex-shrink:0;
+}
+.gh-res-k{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+.gh-res-v{font-weight:600;font-size:.88rem;margin-top:1px}
+.gh-res-vsub{font-size:.73rem;color:var(--text-muted)}
+.gh-res-total{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:13px 16px;background:var(--surface-2);
+  border-top:1px solid var(--border);
+}
+.gh-res-total span{font-size:.78rem;color:var(--text-muted)}
+.gh-res-total strong{
+  font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--gold-light);
+}
+
+/* ═══════════════════════════ STICKY BAR ══════════════════════════ */
+.gh-sticky{
+  position:fixed;bottom:60px;left:0;right:0;z-index:45;
+  padding:11px 20px;
+  background:rgba(8,8,8,.95);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid rgba(201,165,75,.22);
+  display:none;
+  animation:slideUp 280ms var(--ease-out);
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.gh-sticky.vis{display:block}
+.gh-sticky-inner{
+  display:flex;align-items:center;gap:12px;
+  max-width:500px;margin:0 auto;
+}
+.gh-sticky-info{flex:1;min-width:0}
+.gh-sticky-tag{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
+.gh-sticky-val{font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gh-sticky-sub{font-size:.72rem;color:var(--text-muted)}
+.gh-sticky-cta{
+  background:var(--primary-gradient);color:var(--bg);border:none;
+  border-radius:var(--rs);padding:11px 18px;
+  font-family:'Jost',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:all 140ms var(--ease-out);
+}
+.gh-sticky-cta:active{transform:scale(.97)}
+@media(hover:hover)and(pointer:fine){.gh-sticky-cta:hover{filter:brightness(1.08);box-shadow:0 10px 28px rgba(201,165,75,.16)}}
+
+/* ═══════════════════════════ ACTIONS (botones nav paso) ══════════ */
+.gh-actions{
+  display:flex;gap:10px;padding:4px 20px 12px;
+}
+.gh-btn-back{
+  flex:1;background:transparent;
+  border:1px solid var(--border);color:var(--text);
+  border-radius:var(--rs);padding:13px;
+  font-family:'Jost',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:all 150ms var(--ease-out);
+}
+@media(hover:hover)and(pointer:fine){.gh-btn-back:hover{border-color:var(--gold);color:var(--gold-light)}}
+.gh-btn-back:active{transform:scale(.97)}
+.gh-btn-next{
+  flex:2;background:var(--primary-gradient);color:var(--bg);border:none;
+  border-radius:var(--rs);padding:13px;
+  font-family:'Jost',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:all 150ms var(--ease-out);
+}
+@media(hover:hover)and(pointer:fine){.gh-btn-next:hover{filter:brightness(1.08);box-shadow:0 10px 28px rgba(201,165,75,.14)}}
+.gh-btn-next:active{transform:scale(.97)}
+.gh-btn-next:disabled{background:#191816;color:#555047;border:1px solid #25221d;cursor:not-allowed;box-shadow:none;filter:none}
+
+/* ═══════════════════════════ BOTTOM NAV ══════════════════════════ */
+.gh-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  height:60px;display:flex;
+  background:rgba(8,8,8,.97);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-top:1px solid rgba(201,165,75,.18);
+}
+.gh-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;color:var(--text-dim);font-size:.55rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:none;background:none;cursor:pointer;padding:0;
+  transition:color 180ms var(--ease-out);
+}
+.gh-nav-item.act{color:var(--gold)}
+.gh-nav-item i{font-size:1.05rem}
+
+/* ═══════════════════════════ SUCCESS ══════════════════════════════ */
+.gh-success{padding:40px 24px;text-align:center}
+.gh-success-ico{
+  width:68px;height:68px;border-radius:50%;
+  background:radial-gradient(circle,rgba(234,208,127,.11),rgba(201,165,75,.04));border:1px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;color:var(--gold);margin:0 auto 20px;
+  animation:popIn 380ms var(--ease-out);
+}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.gh-success-title{
+  font-family:'Cormorant Garamond',serif;font-size:2.12rem;font-weight:500;margin-bottom:8px;
+}
+.gh-success-sub{color:var(--text-muted);font-size:.82rem;margin-bottom:28px}
+.gh-success-num{
+  font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:600;
+  color:var(--gold-light);letter-spacing:.12em;
+}
+.gh-new-btn{
+  display:inline-flex;align-items:center;gap:8px;margin-top:20px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--text);border-radius:var(--rs);padding:12px 22px;
+  font-family:'Jost',sans-serif;font-size:.75rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;cursor:pointer;
+  transition:all 150ms var(--ease-out);
+}
+@media(hover:hover)and(pointer:fine){.gh-new-btn:hover{border-color:var(--gold);color:var(--gold-light)}}
+.gh-new-btn:active{transform:scale(.97)}
+
+/* ═══════════════════════════ ERROR / MISC ════════════════════════ */
+.gh-err{
+  background:rgba(220,53,69,.08);border:1px solid rgba(220,53,69,.25);
+  border-radius:var(--rs);color:#ea868f;padding:11px 14px;
+  font-size:.8rem;margin:0 20px 12px;display:none;
+  animation:fadeUp 250ms var(--ease-out);
+}
+.gh-err.vis{display:block}
+.gh-privacy-note{padding:4px 20px 0;text-align:center;color:var(--text-dim);font-size:.78rem}
+.gh-live-summary{display:none}
+.gh-success-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.gh-home-btn{text-decoration:none}
+.gh-noscript{display:block;margin:16px 20px;padding:12px;border:1px solid #ea868f;color:#ea868f;background:rgba(220,53,69,.08)}
+.gh-loader{text-align:center;padding:28px;color:var(--text-dim)}
+.gh-spin{display:inline-block;animation:rotate .7s linear infinite}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.gh-slots-loader{
+  grid-column:1/-1;display:flex;justify-content:center;padding:18px;
+}
+.gh-sep{height:1px;background:var(--border);margin:0 20px 16px}
+/* sin precio: alinear dur a la derecha igualmente */
+.gh-svc-price-col:empty{display:none}
+
+:focus-visible{
+  outline:2px solid var(--gold-light);
+  outline-offset:3px;
+}
+
+@media(min-width:700px){
+  .gh-header{min-height:92px}
+  .gh-brand-mark{width:40px;height:40px;flex-basis:40px}
+  .gh-brand-copy strong{font-size:1.12rem}
+  .gh-stepper{top:92px;padding-top:13px}
+  .gh-main{padding-top:calc(92px + 67px);padding-bottom:132px}
+  .gh-page-head{padding:32px 20px 18px}
+  .gh-page-title{font-size:2.15rem}
+  .gh-svc-card{padding:17px 18px}
+}
+
+@media(min-width:900px){
+  .gh-main{max-width:1120px;display:grid;grid-template-columns:300px minmax(0,720px);gap:48px;padding-inline:28px}
+  .gh-sections{grid-column:2}
+  .gh-live-summary{grid-column:1;display:none;align-self:start;position:sticky;top:190px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:22px 0}
+  .gh-live-summary.vis{display:block}
+  .gh-live-summary h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;margin-bottom:14px}
+  .gh-live-summary p{color:var(--text-muted);font-size:.88rem;margin:6px 0}
+  .gh-live-summary strong{color:var(--text);font-weight:500}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="gh-header">
+  <div class="gh-header-inner">
+    <a class="gh-brand" href="/" aria-label="Volver al inicio de Evolution Studio">
+      <span class="gh-brand-mark"><img src="assets/evolution-logo-instagram.jpeg" alt=""></span>
+      <span class="gh-brand-copy"><strong>Evolution</strong><span>Studio</span></span>
+    </a>
+    <a class="gh-home-link" href="/"><i class="bi bi-arrow-left" aria-hidden="true"></i> Inicio</a>
+  </div>
+  <p class="gh-demo-status">Demo interactiva · no crea una reserva real</p>
+</header>
+
+<!-- STEPPER -->
+<div class="gh-stepper">
+  <div class="gh-step-row" id="ghStepper">
+    <div class="gh-step-i active" data-s="1"><div class="gh-step-n">1</div><div class="gh-step-l">Servicio</div></div>
+    <div class="gh-step-i" data-s="2"><div class="gh-step-n">2</div><div class="gh-step-l">Barbero</div></div>
+    <div class="gh-step-i" data-s="3"><div class="gh-step-n">3</div><div class="gh-step-l">Horario</div></div>
+    <div class="gh-step-i" data-s="4"><div class="gh-step-n">4</div><div class="gh-step-l">Confirmar</div></div>
+  </div>
+</div>
+
+<main class="gh-main">
+  <aside class="gh-live-summary" id="liveSummary" aria-live="polite"></aside>
+  <div class="gh-sections">
+  <div class="gh-flow-message" id="flowMessage" role="status" aria-live="polite" tabindex="-1"></div>
+  <noscript><span class="gh-noscript">Esta simulación necesita JavaScript para cambiar de paso y completar el recorrido.</span></noscript>
+
+  <!-- ══════ PASO 1 — SERVICIO ══════ -->
+  <div class="gh-section active" id="s1">
+    <div class="gh-page-head">
+      <div class="gh-step-tag">Paso 1 de 4</div>
+      <h1 class="gh-page-title">Selecciona un servicio</h1>
+      <p class="gh-data-note">Datos de muestra</p>
+    </div>
+    <div class="gh-svc-grid" id="svcGrid"><button type="button" class="gh-svc-card" onclick="selSvc(3,this)" aria-pressed="false" data-id="3" data-nombre="Barba" data-dur="15" data-precio="5000.00" data-icono="bi-emoji-smile">
+      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
+      <div class="gh-svc-icon-wrap"><i class="bi bi-emoji-smile"></i></div>
+      <div class="gh-svc-body">
+        <div class="gh-svc-name">Barba</div>
+        <div class="gh-svc-desc">Perfilado y desvanecido de barba</div>
+      </div>
+      <div class="gh-svc-price-col">
+        <div class="gh-svc-price">$5.000</div>
+        <div class="gh-svc-dur">15 min</div>
+      </div>
+    </button><button type="button" class="gh-svc-card" onclick="selSvc(9,this)" aria-pressed="false" data-id="9" data-nombre="Corte + Barba" data-dur="60" data-precio="15000.00" data-icono="bi-scissors">
+      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
+      <div class="gh-svc-icon-wrap"><i class="bi bi-scissors"></i></div>
+      <div class="gh-svc-body">
+        <div class="gh-svc-name">Corte + Barba</div>
+        <div class="gh-svc-desc">Corte de cabello y perfilado de barba</div>
+      </div>
+      <div class="gh-svc-price-col">
+        <div class="gh-svc-price">$15.000</div>
+        <div class="gh-svc-dur">60 min</div>
+      </div>
+    </button><button type="button" class="gh-svc-card" onclick="selSvc(8,this)" aria-pressed="false" data-id="8" data-nombre="Corte Clásico" data-dur="30" data-precio="10000.00" data-icono="bi-scissors">
+      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
+      <div class="gh-svc-icon-wrap"><i class="bi bi-scissors"></i></div>
+      <div class="gh-svc-body">
+        <div class="gh-svc-name">Corte Clásico</div>
+        <div class="gh-svc-desc">Corte de cabello estilo clásico con asesoría profesional</div>
+      </div>
+      <div class="gh-svc-price-col">
+        <div class="gh-svc-price">$10.000</div>
+        <div class="gh-svc-dur">30 min</div>
+      </div>
+    </button><button type="button" class="gh-svc-card" onclick="selSvc(1,this)" aria-pressed="false" data-id="1" data-nombre="Corte desvanecido" data-dur="60" data-precio="12000.00" data-icono="bi-scissors">
+      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
+      <div class="gh-svc-icon-wrap"><i class="bi bi-scissors"></i></div>
+      <div class="gh-svc-body">
+        <div class="gh-svc-name">Corte desvanecido</div>
+        <div class="gh-svc-desc">Corte de cabello desvanecido con asesoramiento profesional</div>
+      </div>
+      <div class="gh-svc-price-col">
+        <div class="gh-svc-price">$12.000</div>
+        <div class="gh-svc-dur">60 min</div>
+      </div>
+    </button><button type="button" class="gh-svc-card" onclick="selSvc(2,this)" aria-pressed="false" data-id="2" data-nombre="Perfilado de cejas" data-dur="15" data-precio="2000.00" data-icono="bi-emoji-smile">
+      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
+      <div class="gh-svc-icon-wrap"><i class="bi bi-emoji-smile"></i></div>
+      <div class="gh-svc-body">
+        <div class="gh-svc-name">Perfilado de cejas</div>
+        <div class="gh-svc-desc">Perfilado o diseño ( corte de ceja)</div>
+      </div>
+      <div class="gh-svc-price-col">
+        <div class="gh-svc-price">$2.000</div>
+        <div class="gh-svc-dur">15 min</div>
+      </div>
+    </button><button type="button" class="gh-svc-card" onclick="selSvc(6,this)" aria-pressed="false" data-id="6" data-nombre="Rulos- ondulación" data-dur="120" data-precio="40000.00" data-icono="bi-stars">
+      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
+      <div class="gh-svc-icon-wrap"><i class="bi bi-stars"></i></div>
+      <div class="gh-svc-body">
+        <div class="gh-svc-name">Rulos- ondulación</div>
+        <div class="gh-svc-desc">+ corte de cabello incluido</div>
+      </div>
+      <div class="gh-svc-price-col">
+        <div class="gh-svc-price">$40.000</div>
+        <div class="gh-svc-dur">120 min</div>
+      </div>
+    </button><button type="button" class="gh-svc-card" onclick="selSvc(5,this)" aria-pressed="false" data-id="5" data-nombre="Visos" data-dur="120" data-precio="50000.00" data-icono="bi-brush">
+      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
+      <div class="gh-svc-icon-wrap"><i class="bi bi-brush"></i></div>
+      <div class="gh-svc-body">
+        <div class="gh-svc-name">Visos</div>
+        <div class="gh-svc-desc">Iluminación en tu cabello del color deseado</div>
+      </div>
+      <div class="gh-svc-price-col">
+        <div class="gh-svc-price">$50.000</div>
+        <div class="gh-svc-dur">120 min</div>
+      </div>
+    </button></div>
+  </div>
+
+  <!-- ══════ PASO 2 — BARBERO ══════ -->
+  <div class="gh-section" id="s2">
+    <div class="gh-page-head">
+      <div class="gh-step-tag">Paso 2 de 4</div>
+      <h1 class="gh-page-title">Elige tu artesano</h1>
+      <p class="gh-page-sub">Cada corte es una firma. Elige al maestro que mejor se adapta a tu estilo.</p>
+      <p class="gh-data-note">Datos de muestra</p>
+    </div>
+    <div class="gh-barb-grid" id="barbGrid">
+      <div class="gh-loader" style="grid-column:1/-1"><i class="bi bi-arrow-repeat gh-spin"></i></div>
+    </div>
+    <div class="gh-expertise" id="expertise"></div>
+    <div class="gh-actions">
+      <button class="gh-btn-back" onclick="ir(1)"><i class="bi bi-arrow-left"></i> Volver</button>
+      <button class="gh-btn-next" id="btn3" onclick="ir(3)" disabled="">Continuar <i class="bi bi-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- ══════ PASO 3 — FECHA Y HORA ══════ -->
+  <div class="gh-section" id="s3">
+    <div class="gh-page-head">
+      <div class="gh-step-tag">Paso 3 de 4</div>
+      <h1 class="gh-page-title">Fecha y hora</h1>
+      <p class="gh-page-sub" id="s3sub">Selecciona el día y el horario disponible.</p>
+    </div>
+    <!-- Calendario -->
+    <div class="gh-cal" id="calWrap">
+      <div class="gh-cal-top">
+        <button class="gh-cal-btn" id="calPrev" type="button" onclick="calNav(-1)" aria-label="Mes anterior"><i class="bi bi-chevron-left"></i></button>
+        <span class="gh-cal-month" id="calLabel"></span>
+        <button class="gh-cal-btn" id="calNext" type="button" onclick="calNav(1)" aria-label="Mes siguiente"><i class="bi bi-chevron-right"></i></button>
+      </div>
+      <div class="gh-cal-inner">
+        <div class="gh-dows" id="calDows"></div>
+        <div class="gh-days" id="calDays"></div>
+      </div>
+    </div>
+    <!-- Slots -->
+    <div class="gh-slots-section" id="slotsSection">
+      <div class="gh-pad">
+      <div class="gh-slots-lbl">Disponibilidad simulada</div>
+        <div class="gh-slots-grid" id="slotsGrid"></div>
+      </div>
+    </div>
+    <div class="gh-actions">
+      <button class="gh-btn-back" onclick="ir(2)"><i class="bi bi-arrow-left"></i> Volver</button>
+      <button class="gh-btn-next" id="btn4" onclick="ir(4)" disabled="">Continuar <i class="bi bi-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- ══════ PASO 4 — DATOS ══════ -->
+  <div class="gh-section" id="s4">
+    <div class="gh-page-head">
+      <div class="gh-step-tag">Paso 4 de 4 — Confirmación</div>
+      <h1 class="gh-page-title">Finalizar reserva</h1>
+      <p class="gh-page-sub">Completa tus datos para confirmar la cita.</p>
+    </div>
+
+    <div class="gh-form-box">
+      <div class="gh-form-box-title">Tus datos</div>
+      <div class="gh-field">
+        <label for="fNombre">Nombre completo *</label>
+        <input id="fNombre" type="text" placeholder="Ej. Alejandro García" maxlength="100" inputmode="text" autocomplete="name" required>
+      </div>
+      <div class="gh-field">
+        <label for="fTel">Teléfono *</label>
+        <input id="fTel" type="tel" placeholder="+56 9 XXXX XXXX" maxlength="20" inputmode="tel" autocomplete="tel" required>
+      </div>
+      <div class="gh-field">
+        <label for="fNotas">Notas <span style="color:var(--text-dim);text-transform:none;font-size:.68rem">(opcional)</span></label>
+        <textarea id="fNotas" rows="2" placeholder="Alguna indicación especial..."></textarea>
+      </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="gh-resumen">
+      <div class="gh-res-header">Resumen de cita</div>
+      <div id="resumenBody"></div>
+      <div class="gh-res-total" id="resumenTotal" style="display:none">
+        <span>Total</span>
+        <strong id="resumenPrecio"></strong>
+      </div>
+    </div>
+
+    <div class="gh-err" id="fErr" role="alert"></div>
+
+    <div class="gh-actions">
+      <button class="gh-btn-back" onclick="ir(3)"><i class="bi bi-arrow-left"></i> Volver</button>
+      <button class="gh-btn-next" id="btnConfirm" onclick="confirmar()"><i class="bi bi-check-lg"></i> Confirmar reserva</button>
+    </div>
+    <p class="gh-privacy-note">Esta demo no envía ni guarda tus datos.</p>
+  </div>
+
+  <!-- ══════ ÉXITO ══════ -->
+  <div class="gh-section" id="sOk">
+    <div class="gh-success">
+      <div class="gh-success-ico"><i class="bi bi-check-lg"></i></div>
+      <h2 class="gh-success-title">Reserva simulada</h2>
+      <p class="gh-success-sub">Demo interactiva · no crea una reserva real. No se guardó ni envió información.</p>
+      <div class="gh-success-num" id="okNum"></div>
+      <div id="okResumen" style="margin-top:24px;text-align:left"></div>
+      <div class="gh-success-actions">
+        <button class="gh-new-btn" type="button" onclick="reiniciarDemo()">
+          <i class="bi bi-plus-lg"></i> Nueva simulación
+        </button>
+        <a class="gh-new-btn gh-home-btn" href="/"><i class="bi bi-arrow-left"></i> Volver al inicio</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<!-- STICKY BAR (paso 1: selección de servicio) -->
+<div class="gh-sticky" id="stickyBar">
+  <div class="gh-sticky-inner">
+    <div class="gh-sticky-info">
+      <div class="gh-sticky-tag">Servicio seleccionado</div>
+      <div class="gh-sticky-val" id="stickyVal">—</div>
+      <div class="gh-sticky-sub" id="stickySub"></div>
+    </div>
+    <button class="gh-sticky-cta" onclick="ir(2)">Elegir barbero <i class="bi bi-arrow-right"></i></button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="gh-nav" aria-label="Navegación principal">
+  <button class="gh-nav-item act" onclick="ir(1)"><i class="bi bi-scissors"></i>Servicios</button>
+  <button class="gh-nav-item" onclick="ir(2)"><i class="bi bi-people"></i>Barberos</button>
+  <button class="gh-nav-item" onclick="ir(3)"><i class="bi bi-calendar3"></i>Reservar</button>
+</nav>
+
+<script>
+const TIME_ZONE = 'America/Santiago';
+const WINDOW_DAYS = 60;
+const DEMO_SLOTS = ['15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30'];
+const MESES    = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DOWS     = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+
+function santiagoSnapshot(date = new Date()) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: TIME_ZONE,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(date).filter(part => part.type !== 'literal').map(part => [part.type, part.value]));
+  return {
+    dateKey: `${parts.year}-${parts.month}-${parts.day}`,
+    minutes: Number(parts.hour) * 60 + Number(parts.minute),
+  };
+}
+
+function keyToUtcDate(key) {
+  const [year, month, day] = key.split('-').map(Number);
+  return new Date(Date.UTC(year, month - 1, day, 12));
+}
+
+function addDays(key, days) {
+  const date = keyToUtcDate(key);
+  date.setUTCDate(date.getUTCDate() + days);
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+}
+
+const HOY = santiagoSnapshot().dateKey;
+const MAX_DATE = addDays(HOY, WINDOW_DAYS);
+
+function initialState() {
+  return {
+    paso: 1,
+    servicio: null,
+    barbero: null,
+    fecha: null,
+    hora: null,
+    cliente: null,
+    loaded: { svc: false, barb: false },
+  };
+}
+
+let state = initialState();
+
+function showFlowMessage(message, selector) {
+  const element = document.getElementById('flowMessage');
+  element.textContent = message;
+  element.classList.add('vis');
+  element.focus({ preventScroll: true });
+  if (selector) document.querySelector(selector)?.focus({ preventScroll: true });
+}
+
+function clearFlowMessage() {
+  const element = document.getElementById('flowMessage');
+  element.textContent = '';
+  element.classList.remove('vis');
+}
+
+// ── Navegación ────────────────────────────────────────────────────
+function ir(n) {
+  if (n > 1 && !state.servicio && state.loaded.svc) {
+    showFlowMessage('Selecciona un servicio para continuar.', '#svcGrid .gh-svc-card');
+    return;
+  }
+  if (n > 2 && !state.barbero) {
+    showFlowMessage('Selecciona un barbero de muestra para continuar.', '#barbGrid .gh-barb-card');
+    return;
+  }
+  if (n > 3 && (!state.fecha || !state.hora)) {
+    showFlowMessage('Selecciona una fecha y un horario de muestra para continuar.', '#calWrap');
+    return;
+  }
+
+  clearFlowMessage();
+
+  state.paso = n;
+
+  document.querySelectorAll('.gh-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('s' + n)?.classList.add('active');
+  if (n === 'Ok' || n === 5) { document.getElementById('sOk').classList.add('active'); }
+
+  // Stepper
+  document.querySelectorAll('.gh-step-i').forEach((el, i) => {
+    el.classList.remove('active','done');
+    if (i + 1 < n) el.classList.add('done');
+    else if (i + 1 === n) el.classList.add('active');
+  });
+
+  // Sticky bar solo en paso 1 si hay servicio
+  document.getElementById('stickyBar').classList.toggle('vis', n === 1 && !!state.servicio);
+
+  // Nav
+  document.querySelectorAll('.gh-nav-item').forEach((b, i) => b.classList.toggle('act', i === n - 1));
+
+  // Acciones lazy
+  if (n === 2 && !state.loaded.barb) cargarBarberos();
+  if (n === 3) renderCal();
+  if (n === 4) renderResumen();
+  updateLiveSummary();
+
+  window.scrollTo(0, 0);
+}
+
+// ── PASO 1: Servicios ─────────────────────────────────────────────
+async function cargarServicios() {
+  const r = { servicios: [
+    {id:3,nombre:'Barba',descripcion:'Perfilado y desvanecido de barba',duracion_min:15,precio:5000,icono:'bi-emoji-smile'},
+    {id:9,nombre:'Corte + Barba',descripcion:'Corte de cabello y perfilado de barba',duracion_min:60,precio:15000,icono:'bi-scissors'},
+    {id:8,nombre:'Corte Clásico',descripcion:'Corte de cabello estilo clásico con asesoría profesional',duracion_min:30,precio:10000,icono:'bi-scissors'},
+    {id:1,nombre:'Corte desvanecido',descripcion:'Corte de cabello desvanecido con asesoramiento profesional',duracion_min:60,precio:12000,icono:'bi-scissors'},
+    {id:2,nombre:'Perfilado de cejas',descripcion:'Perfilado o diseño ( corte de ceja)',duracion_min:15,precio:2000,icono:'bi-emoji-smile'},
+    {id:6,nombre:'Rulos- ondulación',descripcion:'+ corte de cabello incluido',duracion_min:120,precio:40000,icono:'bi-stars'},
+    {id:5,nombre:'Visos',descripcion:'Iluminación en tu cabello del color deseado',duracion_min:120,precio:50000,icono:'bi-brush'}
+  ] };
+  state.loaded.svc = true;
+  const el = document.getElementById('svcGrid');
+
+  if (!r?.servicios?.length) {
+    // Sin servicios → ir directo al paso 2
+    el.innerHTML = '';
+    state.servicio = { id: 0, nombre: '', duracion_min: 30, precio: null, icono: 'bi-scissors' };
+    ir(2);
+    document.querySelector('[data-s="1"]').style.display = 'none';
+    return;
+  }
+
+  const svcs = r.servicios;
+  el.innerHTML = svcs.map(s => {
+    const precio = s.precio ? '$' + parseFloat(s.precio).toLocaleString('es-CL', {minimumFractionDigits:0}) : '';
+    return `<button type="button" class="gh-svc-card" onclick="selSvc(${s.id},this)" aria-pressed="false"
+         data-id="${s.id}" data-nombre="${xa(s.nombre)}" data-dur="${s.duracion_min}"
+         data-precio="${s.precio||''}" data-icono="${s.icono}">
+      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
+      <div class="gh-svc-icon-wrap"><i class="bi ${s.icono}"></i></div>
+      <div class="gh-svc-body">
+        <div class="gh-svc-name">${xe(s.nombre)}</div>
+        ${s.descripcion ? `<div class="gh-svc-desc">${xe(s.descripcion)}</div>` : ''}
+      </div>
+      <div class="gh-svc-price-col">
+        ${precio ? `<div class="gh-svc-price">${precio}</div>` : ''}
+        <div class="gh-svc-dur">${s.duracion_min} min</div>
+      </div>
+    </button>`;
+  }).join('');
+}
+
+function selSvc(id, el) {
+  document.querySelectorAll('#svcGrid .gh-svc-card').forEach(c => {
+    c.classList.remove('sel');
+    c.setAttribute('aria-pressed', 'false');
+  });
+  el.classList.add('sel');
+  el.setAttribute('aria-pressed', 'true');
+  state.servicio = {
+    id: parseInt(id),
+    nombre: el.dataset.nombre,
+    duracion_min: parseInt(el.dataset.dur),
+    precio: el.dataset.precio || null,
+    icono: el.dataset.icono,
+  };
+  state.barbero = null; state.fecha = null; state.hora = null;
+  document.querySelectorAll('#barbGrid .gh-barb-card').forEach(card => {
+    card.classList.remove('sel');
+    card.setAttribute('aria-pressed', 'false');
+  });
+  document.getElementById('expertise').className = 'gh-expertise';
+  document.getElementById('slotsGrid').innerHTML = '';
+  document.getElementById('slotsSection').classList.remove('vis');
+  document.getElementById('btn3').disabled = true;
+  document.getElementById('btn4').disabled = true;
+  clearFlowMessage();
+  // Sticky
+  document.getElementById('stickyVal').textContent = state.servicio.nombre;
+  document.getElementById('stickySub').textContent = state.servicio.duracion_min + ' min' + (state.servicio.precio ? ' · $' + parseFloat(state.servicio.precio).toLocaleString('es-CL') : '');
+  document.getElementById('stickyBar').classList.add('vis');
+  updateLiveSummary();
+}
+
+// ── PASO 2: Barberos ──────────────────────────────────────────────
+async function cargarBarberos() {
+  const r = { trabajadores: [
+    {id:4,nombre:'Cristóbal',color:'#ffffff',descripcion:''},
+    {id:3,nombre:'Erik',color:'#d19d01',descripcion:''},
+    {id:1,nombre:'Leonardo',color:'#ff4015',descripcion:'Barbero profesional con 4 años de experiencia en barbería'},
+    {id:5,nombre:'Matute',color:'#76bb40',descripcion:''},
+    {id:2,nombre:'Vicente',color:'#0056d6',descripcion:'Barbero profesional con más de 5 años de experiencia'}
+  ] };
+  state.loaded.barb = true;
+  const el = document.getElementById('barbGrid');
+  if (!r?.trabajadores?.length) {
+    el.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:20px">No hay barberos disponibles.</p>';
+    return;
+  }
+  el.innerHTML = r.trabajadores.map(b => {
+    const initials = b.nombre.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    const tags = (b.descripcion || '').split(',').map(t => t.trim()).filter(Boolean);
+    return `<button type="button" class="gh-barb-card" onclick="selBarb(${b.id},this)" aria-pressed="false"
+         data-id="${b.id}" data-nombre="${xa(b.nombre)}" data-color="${b.color}"
+         data-desc="${xa(b.descripcion||'')}">
+      <div class="gh-barb-avatar" style="background:${b.color}">
+        ${initials}
+        <div class="gh-barb-ck"><i class="bi bi-check-lg"></i></div>
+      </div>
+      <div class="gh-barb-name">${xe(b.nombre)}</div>
+      <div class="gh-barb-title">Barbero profesional</div>
+      ${tags.length ? `<div class="gh-barb-tags">${tags.map(t => `<span class="gh-barb-tag">${xe(t)}</span>`).join('')}</div>` : ''}
+    </button>`;
+  }).join('');
+}
+
+function selBarb(id, el) {
+  document.querySelectorAll('#barbGrid .gh-barb-card').forEach(c => {
+    c.classList.remove('sel');
+    c.setAttribute('aria-pressed', 'false');
+  });
+  el.classList.add('sel');
+  el.setAttribute('aria-pressed', 'true');
+  state.barbero = { id: parseInt(id), nombre: el.dataset.nombre, color: el.dataset.color, descripcion: el.dataset.desc };
+  state.fecha = null; state.hora = null;
+  document.getElementById('btn3').disabled = false;
+  clearFlowMessage();
+  updateLiveSummary();
+
+  // Expertise panel
+  const exp = document.getElementById('expertise');
+  exp.className = 'gh-expertise vis';
+  exp.innerHTML = `
+    <div class="gh-exp-title">${xe(state.barbero.nombre)}</div>
+    <div class="gh-exp-stats">
+      <div class="gh-exp-stat">
+        <div class="gh-exp-val"><i class="bi bi-scissors"></i> Profesional</div>
+        <div class="gh-exp-key">Categoría</div>
+      </div>
+      <div class="gh-exp-stat">
+        <div class="gh-exp-val"><i class="bi bi-clock"></i> ${state.servicio.duracion_min} min</div>
+        <div class="gh-exp-key">Duración</div>
+      </div>
+      <div class="gh-exp-stat">
+        <div class="gh-exp-val"><i class="bi bi-calendar-check"></i> Simulada</div>
+        <div class="gh-exp-key">Disponibilidad</div>
+      </div>
+    </div>`;
+}
+
+// ── PASO 3: Calendario ────────────────────────────────────────────
+let calY, calM;
+(function(){ const d = keyToUtcDate(HOY); calY = d.getUTCFullYear(); calM = d.getUTCMonth(); })();
+
+function monthIndex(year, month) { return year * 12 + month; }
+const MIN_MONTH = monthIndex(keyToUtcDate(HOY).getUTCFullYear(), keyToUtcDate(HOY).getUTCMonth());
+const MAX_MONTH = monthIndex(keyToUtcDate(MAX_DATE).getUTCFullYear(), keyToUtcDate(MAX_DATE).getUTCMonth());
+
+function calNav(dir) {
+  const next = monthIndex(calY, calM) + dir;
+  if (next < MIN_MONTH || next > MAX_MONTH) return;
+  calY = Math.floor(next / 12);
+  calM = next % 12;
+  state.fecha = null;
+  state.hora = null;
+  renderCal();
+  updateLiveSummary();
+}
+
+function renderCal() {
+  document.getElementById('s3sub').textContent = state.barbero
+    ? 'Con ' + state.barbero.nombre + ' · Elige el día.'
+    : 'Selecciona el día y el horario disponible.';
+  document.getElementById('calLabel').textContent = MESES[calM] + ' ' + calY;
+  document.getElementById('calPrev').disabled = monthIndex(calY, calM) <= MIN_MONTH;
+  document.getElementById('calNext').disabled = monthIndex(calY, calM) >= MAX_MONTH;
+
+  const dowEl = document.getElementById('calDows');
+  const daysEl = document.getElementById('calDays');
+  dowEl.innerHTML = DOWS.map(d => `<div class="gh-dow">${d}</div>`).join('');
+
+  const primero = new Date(Date.UTC(calY, calM, 1, 12));
+  const ultimo  = new Date(Date.UTC(calY, calM + 1, 0, 12)).getUTCDate();
+  // Lunes = 0 offset
+  const offset  = (primero.getUTCDay() + 6) % 7;
+
+  let html = '';
+  for (let i = 0; i < offset; i++) html += '<span class="gh-day emp" aria-hidden="true"></span>';
+  for (let d = 1; d <= ultimo; d++) {
+    const dStr = calY + '-' + pad(calM+1) + '-' + pad(d);
+    const past = dStr < HOY, fut = dStr > MAX_DATE;
+    const isHoy = dStr === HOY, isSel = dStr === state.fecha;
+    const cls = [past||fut?'dis':'', isHoy?'today':'', isSel?'sel':''].filter(Boolean).join(' ');
+    const disabled = past || fut;
+    html += `<button type="button" class="gh-day ${cls}" onclick="selFecha('${dStr}')" aria-label="${d} de ${MESES[calM]} de ${calY}" aria-pressed="${isSel}" ${disabled ? 'disabled' : ''}>${d}</button>`;
+  }
+  daysEl.innerHTML = html;
+
+  // Ocultar slots al cambiar mes
+  document.getElementById('slotsSection').classList.remove('vis');
+  document.getElementById('btn4').disabled = true;
+}
+
+async function selFecha(fecha) {
+  state.fecha = fecha; state.hora = null;
+  document.getElementById('btn4').disabled = true;
+  renderCal();
+
+  const sec = document.getElementById('slotsSection');
+  const grid = document.getElementById('slotsGrid');
+  sec.classList.add('vis');
+  const snapshot = santiagoSnapshot();
+  const slots = DEMO_SLOTS.filter(hour => fecha !== HOY || slotMinutes(hour) > snapshot.minutes);
+  const r = { slots };
+
+  if (!r?.slots?.length) {
+    grid.innerHTML = '<div class="gh-slots-empty"><i class="bi bi-calendar-x" style="font-size:1.5rem;display:block;margin-bottom:6px;opacity:.4"></i>Sin horarios de muestra disponibles para este día</div>';
+    return;
+  }
+  grid.innerHTML = r.slots.map(h => `
+    <button type="button" class="gh-slot" onclick="selSlot('${h}',this)" aria-pressed="false" aria-label="Horario de muestra ${fmtHora(h)}">${fmtHora(h)}</button>`).join('');
+  clearFlowMessage();
+  updateLiveSummary();
+}
+
+function selSlot(hora, el) {
+  document.querySelectorAll('.gh-slot').forEach(s => {
+    s.classList.remove('sel');
+    s.setAttribute('aria-pressed', 'false');
+  });
+  el.classList.add('sel');
+  el.setAttribute('aria-pressed', 'true');
+  state.hora = hora;
+  document.getElementById('btn4').disabled = false;
+  clearFlowMessage();
+  updateLiveSummary();
+}
+
+// ── PASO 4: Resumen ───────────────────────────────────────────────
+function renderResumen() {
+  const fechaFmt = state.fecha
+    ? formatDate(state.fecha)
+    : '';
+
+  const rows = [
+    state.servicio?.nombre ? `<div class="gh-res-row">
+      <div class="gh-res-icon"><i class="bi ${state.servicio.icono}"></i></div>
+      <div><div class="gh-res-k">Servicio</div>
+           <div class="gh-res-v">${xe(state.servicio.nombre)}</div>
+           <div class="gh-res-vsub">${state.servicio.duracion_min} min${state.servicio.precio ? ' · $' + parseFloat(state.servicio.precio).toLocaleString('es-CL') : ''}</div>
+      </div></div>` : '',
+    `<div class="gh-res-row">
+      <div class="gh-res-icon" style="background:${state.barbero.color}22">
+        <span style="color:${state.barbero.color};font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1rem">
+          ${state.barbero.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
+        </span>
+      </div>
+      <div><div class="gh-res-k">Barbero</div>
+           <div class="gh-res-v">${xe(state.barbero.nombre)}</div>
+      </div></div>`,
+    `<div class="gh-res-row">
+      <div class="gh-res-icon"><i class="bi bi-calendar3"></i></div>
+      <div><div class="gh-res-k">Fecha y hora</div>
+           <div class="gh-res-v" style="text-transform:capitalize">${fechaFmt}</div>
+           <div class="gh-res-vsub">${fmtHora(state.hora)}</div>
+      </div></div>`,
+  ].join('');
+
+  document.getElementById('resumenBody').innerHTML = rows;
+
+  if (state.servicio?.precio) {
+    document.getElementById('resumenTotal').style.display = '';
+    document.getElementById('resumenPrecio').textContent = '$' + parseFloat(state.servicio.precio).toLocaleString('es-CL', {minimumFractionDigits:0});
+  } else {
+    document.getElementById('resumenTotal').style.display = 'none';
+  }
+}
+
+// ── Confirmar cita ────────────────────────────────────────────────
+async function confirmar() {
+  const nombre = document.getElementById('fNombre').value.trim();
+  const tel    = document.getElementById('fTel').value.trim();
+  const notas  = document.getElementById('fNotas').value.trim();
+  const errEl  = document.getElementById('fErr');
+
+  if (!nombre || !tel) {
+    errEl.textContent = 'Nombre y teléfono son obligatorios.';
+    errEl.classList.add('vis');
+    document.getElementById(!nombre ? 'fNombre' : 'fTel').focus();
+    return;
+  }
+  errEl.classList.remove('vis');
+  state.cliente = { nombre, telefono: tel, notas };
+
+  // Éxito simulado: este prototipo nunca envía datos ni crea una cita real.
+  document.getElementById('okNum').textContent = '#DEMO';
+  const fechaFmt = formatDate(state.fecha);
+  document.getElementById('okResumen').innerHTML = `
+    <div class="gh-resumen">
+      <div class="gh-res-row">
+        <div class="gh-res-icon"><i class="bi bi-person"></i></div>
+        <div><div class="gh-res-k">Cliente</div><div class="gh-res-v">${xe(state.cliente.nombre)}</div>
+        <div class="gh-res-vsub">${xe(state.cliente.telefono)}</div></div>
+      </div>
+      <div class="gh-res-row">
+        <div class="gh-res-icon"><i class="bi ${state.servicio.icono}"></i></div>
+        <div><div class="gh-res-k">Servicio</div><div class="gh-res-v">${xe(state.servicio.nombre)}</div>
+        <div class="gh-res-vsub">${state.servicio.duracion_min} min</div></div>
+      </div>
+      <div class="gh-res-row">
+        <div class="gh-res-icon"><i class="bi bi-calendar3"></i></div>
+        <div><div class="gh-res-k">Cita</div>
+             <div class="gh-res-v" style="text-transform:capitalize">${fechaFmt}</div>
+             <div class="gh-res-vsub">${fmtHora(state.hora)} · ${xe(state.barbero.nombre)}</div>
+        </div>
+      </div>
+    </div>`;
+
+  document.querySelectorAll('.gh-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sOk').classList.add('active');
+  document.getElementById('stickyBar').classList.remove('vis');
+  document.getElementById('ghStepper').querySelectorAll('.gh-step-i').forEach(s => s.classList.add('done'));
+  document.getElementById('liveSummary').classList.remove('vis');
+  clearFlowMessage();
+  window.scrollTo(0,0);
+}
+
+function updateLiveSummary() {
+  const summary = document.getElementById('liveSummary');
+  const items = [];
+  if (state.servicio) items.push(`<p><strong>Servicio</strong><br>${xe(state.servicio.nombre)} · ${state.servicio.duracion_min} min</p>`);
+  if (state.barbero) items.push(`<p><strong>Barbero</strong><br>${xe(state.barbero.nombre)}</p>`);
+  if (state.fecha) items.push(`<p><strong>Fecha</strong><br>${xe(formatDate(state.fecha))}</p>`);
+  if (state.hora) items.push(`<p><strong>Horario de muestra</strong><br>${xe(fmtHora(state.hora))}</p>`);
+  summary.innerHTML = items.length ? `<h2>Tu simulación</h2>${items.join('')}` : '';
+  summary.classList.toggle('vis', items.length > 0);
+}
+
+function reiniciarDemo() {
+  state = initialState();
+  const today = keyToUtcDate(HOY);
+  calY = today.getUTCFullYear();
+  calM = today.getUTCMonth();
+  document.getElementById('fNombre').value = '';
+  document.getElementById('fTel').value = '';
+  document.getElementById('fNotas').value = '';
+  document.getElementById('fErr').classList.remove('vis');
+  document.getElementById('okNum').textContent = '';
+  document.getElementById('okResumen').innerHTML = '';
+  document.getElementById('expertise').className = 'gh-expertise';
+  document.getElementById('stickyBar').classList.remove('vis');
+  document.getElementById('btn3').disabled = true;
+  document.getElementById('btn4').disabled = true;
+  document.getElementById('barbGrid').innerHTML = '<div class="gh-loader" style="grid-column:1/-1"><i class="bi bi-arrow-repeat gh-spin"></i></div>';
+  document.getElementById('slotsGrid').innerHTML = '';
+  renderCal();
+  cargarServicios();
+  ir(1);
+}
+
+// ── Utils ─────────────────────────────────────────────────────────
+function xe(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function xa(s){ return String(s??'').replace(/"/g,'&quot;') }
+function pad(n){ return String(n).padStart(2,'0') }
+function slotMinutes(h){ const [hour,minute] = h.split(':').map(Number); return hour * 60 + minute }
+function formatDate(key){
+  const value = keyToUtcDate(key).toLocaleDateString('es-CL', {timeZone:'UTC',weekday:'long',day:'numeric',month:'long'});
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+function fmtHora(h){
+  return DEMO_SLOTS.includes(h) ? h : '';
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+cargarServicios();
+</script>
+</body>
+</html>

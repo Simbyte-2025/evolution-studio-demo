@@ -5,7 +5,7 @@
 
 ## Objetivo
 
-Convertir la landing existente de Evolution Studio en una muestra visual mobile-first, coherente con la marca y centrada en llevar al cliente al sistema de reserva que Evolution ya usa.
+Convertir la landing existente de Evolution Studio en una muestra visual mobile-first, coherente con la marca y conectada a una simulación completa de reserva dentro del mismo sitio.
 
 ## Hechos verificables
 
@@ -13,19 +13,21 @@ Convertir la landing existente de Evolution Studio en una muestra visual mobile-
 - Instagram mostrado: `@evolution_barbercut`.
 - Perfil indica **Quinta de Tilcoco**.
 - Dirección visible: **Avenida Argomedo 1591, Local C**.
-- El perfil enlaza a un sistema de reserva Vortexa y el export actual usa `https://vortexa.cl/saas/evolution/gestion_horas/reservar`.
+- El material histórico enlaza a un sistema de reserva Vortexa; la demo integrada reemplaza esa redirección únicamente para presentar el recorrido propuesto.
 - La identidad visible usa negro y dorado.
 - El export recibido contiene un archivo específico de landing para Evolution y un demo anterior de Mi Flow.
 
 ## Inferencias razonables
 
-- La demostración ganará claridad si el CTA de reserva aparece temprano en móvil y se conserva el flujo Vortexa, en vez de simular un sistema nuevo.
+- La demostración gana claridad si el CTA de reserva aparece temprano en móvil y abre un recorrido interno claramente identificado como simulación.
 - Para esta etapa es suficiente trabajar sobre el export existente; una migración de stack agregaría costo sin resolver una necesidad actual.
 - Las capturas de Instagram son suficientes para orientar identidad y logo, pero no sustituyen una biblioteca de fotografías finales del negocio.
 
 ## Supuestos de trabajo
 
-- Esta versión es una demo para conversación comercial, no un sitio final aprobado por el cliente.
+- Esta versión es una demo para conversación comercial, no un sistema operativo ni un sitio final aprobado por el cliente.
+- Los servicios, precios, barberos, fechas y horarios del recorrido son datos de muestra.
+- Los datos escritos en el formulario permanecen sólo en memoria y se eliminan al recargar.
 - Se incorporarán más fotografías reales cuando estén disponibles.
 - No se cotiza ni desarrolla automatización adicional en esta etapa.
 
@@ -37,11 +39,11 @@ El HTML importado incluye servicios detallados, promociones, reseñas de ejemplo
 
 1. Auditar visualmente el estado actual en móvil.
 2. Integrar logo de referencia de forma limpia.
-3. Replantear hero y navegación para móvil.
-4. Integrar imágenes reales disponibles sin inventar material.
-5. Reducir u ocultar contenido no validado.
-6. Validar 375 / 390 / 430 / 768 px.
+3. Mantener la navegación `/` → `/reservar` dentro del mismo dominio.
+4. Aplicar el sistema visual de la portada a los cuatro pasos.
+5. Identificar catálogo, equipo y disponibilidad como datos de muestra.
+6. Validar 375 / 390 / 430 / 768 / 1440 px.
 
 ## Criterio de éxito
 
-La demo puede abrirse en un teléfono durante la visita, reconocer inmediatamente la identidad de Evolution y llevar a la reserva existente sin mostrar afirmaciones no verificadas como hechos.
+La demo puede abrirse en un teléfono durante la visita, reconocer inmediatamente la identidad de Evolution y completar el recorrido simulado sin salir del sitio, sin transmitir datos y sin mostrar afirmaciones no verificadas como hechos.
