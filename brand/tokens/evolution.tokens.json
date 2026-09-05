@@ -1,0 +1,52 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "meta": {
+    "name": "Evolution Studio digital identity v1",
+    "version": "1.0.0",
+    "verifiedAt": "2026-09-04",
+    "source": "https://evolution-barber.simbytelabs.com/",
+    "scope": "Published landing only",
+    "logoStatus": "Reference screenshot only; master artwork pending"
+  },
+  "color": {
+    "black": { "$type": "color", "$value": "#090909" },
+    "blackSoft": { "$type": "color", "$value": "#0f0f0f" },
+    "surface": { "$type": "color", "$value": "#141311" },
+    "line": { "$type": "color", "$value": "#2d2922" },
+    "gold": { "$type": "color", "$value": "#c9a54b" },
+    "goldLight": { "$type": "color", "$value": "#ead07f" },
+    "goldDark": { "$type": "color", "$value": "#9b792d" },
+    "ivory": { "$type": "color", "$value": "#f4f0e8" },
+    "muted": { "$type": "color", "$value": "#b4aea4" },
+    "mutedBrand": { "$type": "color", "$value": "#918a7f" },
+    "mutedLabel": { "$type": "color", "$value": "#8e877b" },
+    "mutedFooter": { "$type": "color", "$value": "#817a70" },
+    "onGold": { "$type": "color", "$value": "#151109" }
+  },
+  "fontFamily": {
+    "display": { "$type": "fontFamily", "$value": ["Cormorant Garamond", "Georgia", "serif"] },
+    "body": { "$type": "fontFamily", "$value": ["Jost", "system-ui", "sans-serif"] }
+  },
+  "fontWeight": {
+    "regular": { "$type": "fontWeight", "$value": 400 },
+    "medium": { "$type": "fontWeight", "$value": 500 },
+    "semibold": { "$type": "fontWeight", "$value": 600 }
+  },
+  "radius": {
+    "action": { "$type": "dimension", "$value": { "value": 2, "unit": "px" } }
+  },
+  "layout": {
+    "contentMax": { "$type": "dimension", "$value": { "value": 1120, "unit": "px" } }
+  },
+  "gradient": {
+    "action": {
+      "$type": "gradient",
+      "$value": [
+        { "color": "#ead07f", "position": 0 },
+        { "color": "#c9a54b", "position": 0.58 },
+        { "color": "#9b792d", "position": 1 }
+      ]
+    }
+  }
+}
+

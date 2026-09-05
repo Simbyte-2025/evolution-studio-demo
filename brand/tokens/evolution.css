@@ -1,0 +1,42 @@
+:root {
+  color-scheme: dark;
+
+  /* Raw palette extracted from the published landing. */
+  --evolution-black: #090909;
+  --evolution-black-soft: #0f0f0f;
+  --evolution-surface: #141311;
+  --evolution-line: #2d2922;
+  --evolution-gold: #c9a54b;
+  --evolution-gold-light: #ead07f;
+  --evolution-gold-dark: #9b792d;
+  --evolution-ivory: #f4f0e8;
+  --evolution-muted: #b4aea4;
+  --evolution-muted-brand: #918a7f;
+  --evolution-muted-label: #8e877b;
+  --evolution-muted-footer: #817a70;
+  --evolution-on-gold: #151109;
+
+  /* Semantic aliases. */
+  --evolution-color-bg: var(--evolution-black);
+  --evolution-color-bg-subtle: var(--evolution-black-soft);
+  --evolution-color-surface: var(--evolution-surface);
+  --evolution-color-border: var(--evolution-line);
+  --evolution-color-accent: var(--evolution-gold);
+  --evolution-color-accent-strong: var(--evolution-gold-light);
+  --evolution-color-text: var(--evolution-ivory);
+  --evolution-color-text-muted: var(--evolution-muted);
+  --evolution-color-action-text: var(--evolution-on-gold);
+
+  --evolution-gradient-action: linear-gradient(
+    135deg,
+    var(--evolution-gold-light) 0%,
+    var(--evolution-gold) 58%,
+    var(--evolution-gold-dark) 100%
+  );
+
+  --evolution-font-display: "Cormorant Garamond", Georgia, serif;
+  --evolution-font-body: "Jost", system-ui, sans-serif;
+  --evolution-radius-action: 2px;
+  --evolution-content-max: 1120px;
+}
+

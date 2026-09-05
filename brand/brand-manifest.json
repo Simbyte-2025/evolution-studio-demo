@@ -1,0 +1,65 @@
+{
+  "package": "evolution-studio-digital-identity",
+  "version": "1.0.0",
+  "createdAt": "2026-09-04",
+  "scope": "Identity observed in the published landing",
+  "legalTrademarkRegistration": false,
+  "sources": [
+    {
+      "type": "publishedLanding",
+      "value": "https://evolution-barber.simbytelabs.com/",
+      "status": "verified"
+    },
+    {
+      "type": "localImplementation",
+      "value": "../index.html",
+      "status": "verifiedAgainstPublishedLanding"
+    },
+    {
+      "type": "logoReference",
+      "value": "../assets/reference/evolution-logo-instagram.jpeg",
+      "status": "referenceOnly"
+    }
+  ],
+  "identity": {
+    "visibleName": "Evolution Studio",
+    "instagram": "@evolution_barbercut",
+    "location": "Quinta de Tilcoco",
+    "visualCharacter": ["dark", "gold-accented", "editorial", "restrained", "premium"],
+    "evidenceStatus": "verifiedForLandingOnly"
+  },
+  "typography": {
+    "display": "Cormorant Garamond",
+    "body": "Jost",
+    "weights": [400, 500, 600],
+    "license": "SIL Open Font License",
+    "status": "verified"
+  },
+  "logo": {
+    "masterAvailable": false,
+    "vectorAvailable": false,
+    "transparentArtworkAvailable": false,
+    "reconstructed": false,
+    "status": "pendingOriginalArtwork"
+  },
+  "approvals": {
+    "digitalSystemDocumented": true,
+    "clientApproved": false,
+    "logoApproved": false,
+    "printApplicationsApproved": false
+  },
+  "artifacts": [
+    "evolution-brand-guide.md",
+    "evolution-brand-guide.pdf",
+    "tokens/evolution.tokens.json",
+    "tokens/evolution.css",
+    "palette/evolution-palette.svg",
+    "palette/evolution-palette.png",
+    "typography/evolution-type-specimen.svg",
+    "typography/evolution-type-specimen.png",
+    "boards/evolution-brand-board.svg",
+    "boards/evolution-brand-board.png",
+    "evidence/current-landing-reference.png"
+  ]
+}
+
