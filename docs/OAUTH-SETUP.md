@@ -105,18 +105,92 @@ autorizado la app antes. Revoca el acceso en
 
 ## 7. Cuando toque desplegar (todavía no)
 
-Los mismos nombres se cargan como secretos del Worker, uno por uno:
+Cada paso de abajo requiere autorización previa. Nada de esto se ejecuta
+como parte de la configuración de OAuth.
 
-```bash
-npx wrangler secret put GOOGLE_CLIENT_ID
-npx wrangler secret put GOOGLE_CLIENT_SECRET
-npx wrangler secret put GOOGLE_REFRESH_TOKEN
-npx wrangler secret put BARBER_A_CALENDAR_ID
-npx wrangler secret put BARBER_B_CALENDAR_ID
-npx wrangler secret put BARBER_A_EMAIL
-npx wrangler secret put BARBER_B_EMAIL
-npx wrangler secret put OWNER_EMAIL
-```
+### Por qué NO se cargan los secretos uno por uno
 
-`BUSINESS_TIMEZONE` es la excepción: es pública y ya está en
-`wrangler.jsonc`.
+El subcomando `secret put` de Wrangler **crea una versión del Worker y la
+despliega de inmediato**. Cargar los ocho secretos así produciría ocho
+versiones y ocho despliegues, y los siete primeros quedarían sirviendo
+tráfico con secretos incompletos — es decir, rotos.
+
+Los ocho se cargan **juntos, en una sola versión que no recibe tráfico**.
+
+### Preview URLs deshabilitadas
+
+`wrangler.jsonc` declara `"preview_urls": false`. Sin eso, `versions upload`
+genera una URL de preview **pública** por cada versión: con `workers.dev`
+habilitado en la cuenta y el campo omitido, Wrangler 4.44+ hace que ese
+valor por defecto siga al de `workers.dev`. La versión quedaría accesible
+desde Internet con los ocho secretos cargados y conectada a Google Calendar,
+antes de cualquier despliegue. "No desplegada" no equivale a "no accesible".
+
+### Flujo autorizado
+
+1. **Autenticar el CLI.** El MCP de Cloudflare y la sesión de Wrangler son
+   almacenes de credenciales distintos: autenticar uno no autentica el otro.
+
+   ```bash
+   npx wrangler login
+   npx wrangler whoami --json
+   ```
+
+   Verifica que la cuenta y el Account ID sean los esperados. El subdominio
+   `workers.dev` se comprueba desde **Workers y Pages** en el panel de
+   Cloudflare. Si algo no calza, `npx wrangler logout` y detenerse.
+
+2. **Derivar un archivo temporal** con exactamente las ocho claves
+   (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`,
+   `BARBER_A_CALENDAR_ID`, `BARBER_B_CALENDAR_ID`, `BARBER_A_EMAIL`,
+   `BARBER_B_EMAIL`, `OWNER_EMAIL`), fuera del repositorio, con permisos
+   `600`, sin comentarios y sin imprimir valores.
+
+   No se usa `.dev.vars` directamente: además de los ocho secretos contiene
+   `MIN_ADVANCE_MIN`, que ya es una var pública declarada en
+   `wrangler.jsonc`. Subirla también como secreto duplicaría ese binding.
+
+   `BUSINESS_TIMEZONE` también es una var pública de `wrangler.jsonc`, pero
+   no es una clave de `.dev.vars`.
+
+3. **Crear una única versión no desplegada:**
+
+   ```bash
+   npm run build:cloudflare
+   npx wrangler versions upload --secrets-file <archivo-temporal> --strict
+   ```
+
+   `--strict` aborta la subida si hay cambios remotos en conflicto, en vez
+   de sobrescribirlos en silencio.
+
+   La primera vez esto **crea el Worker remoto**, que hasta entonces no
+   existe. Crea la versión, pero **no** la despliega ni le envía tráfico.
+   `secrets.required` en `wrangler.jsonc` hace que el comando falle con la
+   lista de los que falten, en vez de subir una versión incompleta.
+
+4. **Inspección read-only**, antes de decidir nada:
+
+   ```bash
+   npx wrangler versions list --json
+   npx wrangler deployments list --json
+   npx wrangler versions view <VERSION-ID> --json
+   ```
+
+   Comprobar: una sola versión; ningún deployment activo; los ocho secretos
+   presentes **por nombre** (tipo `secret_text`, sin valores); los bindings
+   `ASSETS`, `BUSINESS_TIMEZONE` y `MIN_ADVANCE_MIN`; cero rutas
+   personalizadas; DNS y Sites sin cambios.
+
+5. **Borrar el archivo temporal**, solo después de confirmar que la versión
+   quedó con los ocho secretos. Se regenera desde `.dev.vars` si hace falta.
+
+6. **Desplegar — requiere autorización explícita e independiente:**
+
+   ```bash
+   npx wrangler versions deploy <VERSION-ID>
+   ```
+
+   Este es el único paso que activa tráfico. No forma parte del anterior.
+
+`BUSINESS_TIMEZONE` y `MIN_ADVANCE_MIN` no son secretos: son vars públicas y
+ya están declaradas en `wrangler.jsonc`.

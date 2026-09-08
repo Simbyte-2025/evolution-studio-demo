@@ -161,5 +161,34 @@ class WranglerConfigTests(unittest.TestCase):
             self.assertNotIn(f"{name}=", raw)
 
 
+class SecretLoadingDocsTests(unittest.TestCase):
+    """La documentación no debe recomendar un comando que despliega solo.
+
+    `wrangler secret put` crea una versión del Worker y la despliega de
+    inmediato. Cargar los ocho secretos así produciría ocho versiones y ocho
+    despliegues, y los siete primeros quedarían en producción con secretos
+    incompletos. La forma correcta es una única versión no desplegada.
+    """
+
+    DOCS = (".dev.vars.example", "docs/OAUTH-SETUP.md")
+    # Se prohíbe la cadena completa, no solo "recomendarla": distinguir una
+    # recomendación de una advertencia por heurística sería frágil. Para
+    # advertir sobre el comando basta nombrar el subcomando sin el prefijo.
+    FORBIDDEN = ("wrangler secret put", "wrangler versions secret put")
+
+    def test_the_docs_never_spell_out_the_self_deploying_command(self):
+        for relative in self.DOCS:
+            text = ROOT.joinpath(relative).read_text()
+            for command in self.FORBIDDEN:
+                with self.subTest(doc=relative, command=command):
+                    self.assertNotIn(command, text)
+
+    def test_the_docs_point_at_the_single_undeployed_version_flow(self):
+        for relative in self.DOCS:
+            text = ROOT.joinpath(relative).read_text()
+            with self.subTest(doc=relative):
+                self.assertIn("wrangler versions upload --secrets-file", text)
+
+
 if __name__ == "__main__":
     unittest.main()

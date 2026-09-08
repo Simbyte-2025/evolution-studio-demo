@@ -4,9 +4,24 @@
 # valores reales. `.dev.vars` está ignorado por Git a propósito: NUNCA se
 # versiona, y ningún valor real debe volver a este archivo de ejemplo.
 #
-# En Cloudflare estos mismos nombres se cargan como secretos del Worker con
-# `npx wrangler secret put <NOMBRE>` (BUSINESS_TIMEZONE es la excepción: es
-# una variable pública y ya vive en wrangler.jsonc).
+# En Cloudflare, cuando esté autorizado, los OCHO secretos se cargan JUNTOS
+# en una sola ejecución controlada:
+#
+#   npx wrangler versions upload --secrets-file <archivo-temporal> --strict
+#
+# Eso crea una única versión que todavía no recibe tráfico. Cargarlos uno por
+# uno con el subcomando `secret put` sería un error: ese comando crea una
+# versión y la despliega de inmediato, así que ocho llamadas producirían ocho
+# despliegues, siete de ellos en producción con secretos incompletos.
+#
+# Este archivo (y su copia .dev.vars) NO se usa como archivo de carga: además
+# de los ocho secretos contiene MIN_ADVANCE_MIN, que ya es una var pública
+# declarada en wrangler.jsonc. Subirla también como secreto duplicaría ese
+# binding. El archivo de carga se deriva aparte, con exactamente las ocho
+# claves, fuera del repositorio y de forma temporal.
+#
+# BUSINESS_TIMEZONE también es una var pública declarada en wrangler.jsonc,
+# pero no vive acá: no es una clave de este archivo ni de .dev.vars.
 
 # ── Cliente OAuth 2.0 tipo "Aplicación de escritorio" ──────────────────
 # Se crean en Google Cloud Console. Ver docs/OAUTH-SETUP.md.
