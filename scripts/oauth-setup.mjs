@@ -66,9 +66,24 @@ export function parseDevVars(contents) {
     if (!line || line.startsWith('#')) continue;
     const separator = line.indexOf('=');
     if (separator === -1) continue;
-    vars[line.slice(0, separator).trim()] = line.slice(separator + 1).trim();
+    vars[line.slice(0, separator).trim()] = unquote(line.slice(separator + 1).trim());
   }
   return vars;
+}
+
+// Quita las comillas envolventes solo cuando forman un par real: misma
+// comilla al principio y al final, con algo (o nada) en medio.
+//
+// Una comilla desbalanceada se conserva literal a propósito. Retirar solo la
+// de apertura convertiría el valor en una credencial DISTINTA sin avisar; es
+// preferible que Google rechace el valor visiblemente. Esto surgió de un caso
+// real: con las comillas incluidas en el valor, Google respondió
+// `401 invalid_client`, un error que no señalaba la causa por ningún lado.
+function unquote(value) {
+  const first = value[0];
+  if (first !== '"' && first !== "'") return value;
+  if (value.length < 2 || value.at(-1) !== first) return value;
+  return value.slice(1, -1);
 }
 
 function base64url(buffer) {

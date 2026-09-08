@@ -5,6 +5,7 @@ import {
   upsertDevVar,
   extractAuthorizationCode,
   startCallbackServer,
+  parseDevVars,
   OAuthCallbackError,
   CALENDAR_SCOPE,
 } from './oauth-setup.mjs';
@@ -157,4 +158,50 @@ test('a callback with the right state resolves with the code and shuts the serve
 
   assert.equal(await code, 'codigo-de-google');
   await assert.rejects(fetch(`http://127.0.0.1:${port}/callback?code=otro&state=state-legitimo`));
+});
+
+// ── parseDevVars: comillas ─────────────────────────────────────────────
+// Incidencia real (08-09-2026): GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET
+// estaban entre comillas en .dev.vars, parseDevVars las conservaba como
+// parte del valor, y Google respondió 401 invalid_client — un error que no
+// apuntaba en absoluto a la causa.
+
+test('parseDevVars keeps an unquoted value exactly as written', () => {
+  const vars = parseDevVars('GOOGLE_CLIENT_ID=abc.apps.googleusercontent.com\n');
+  assert.equal(vars.GOOGLE_CLIENT_ID, 'abc.apps.googleusercontent.com');
+});
+
+test('parseDevVars strips surrounding double quotes', () => {
+  const vars = parseDevVars('GOOGLE_CLIENT_SECRET="GOCSPX-secreto"\n');
+  assert.equal(vars.GOOGLE_CLIENT_SECRET, 'GOCSPX-secreto');
+});
+
+test('parseDevVars strips surrounding single quotes', () => {
+  const vars = parseDevVars("GOOGLE_CLIENT_SECRET='GOCSPX-secreto'\n");
+  assert.equal(vars.GOOGLE_CLIENT_SECRET, 'GOCSPX-secreto');
+});
+
+test('parseDevVars removes surrounding whitespace, inside and outside the quotes', () => {
+  const vars = parseDevVars('  GOOGLE_CLIENT_ID  =   "abc"   \nOWNER_EMAIL=  alguien@example.com  \n');
+  assert.equal(vars.GOOGLE_CLIENT_ID, 'abc');
+  assert.equal(vars.OWNER_EMAIL, 'alguien@example.com');
+});
+
+test('parseDevVars does not silently turn an unbalanced quote into a different credential', () => {
+  // Quitar solo la comilla de apertura convertiría el valor en otro distinto
+  // y en silencio. Se conserva literal para que el error sea visible.
+  assert.equal(parseDevVars('GOOGLE_CLIENT_ID="abc\n').GOOGLE_CLIENT_ID, '"abc');
+  assert.equal(parseDevVars('GOOGLE_CLIENT_ID=abc"\n').GOOGLE_CLIENT_ID, 'abc"');
+  assert.equal(parseDevVars("GOOGLE_CLIENT_ID='abc\n").GOOGLE_CLIENT_ID, "'abc");
+  // Comillas de distinto tipo tampoco forman un par.
+  assert.equal(parseDevVars('GOOGLE_CLIENT_ID="abc\'\n').GOOGLE_CLIENT_ID, '"abc\'');
+  // Una sola comilla no es un par vacío.
+  assert.equal(parseDevVars('GOOGLE_CLIENT_ID="\n').GOOGLE_CLIENT_ID, '"');
+});
+
+test('parseDevVars keeps quotes that are legitimately part of the value', () => {
+  // Balanceadas en los extremos: se quitan las de fuera, se respeta el resto.
+  assert.equal(parseDevVars('X="ab"cd"\n').X, 'ab"cd');
+  // Un valor vacío entre comillas sigue siendo vacío.
+  assert.equal(parseDevVars('X=""\n').X, '');
 });
