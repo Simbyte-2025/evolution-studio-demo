@@ -153,6 +153,9 @@ class CloudflareBuildTests(unittest.TestCase):
         for endpoint in API_ENDPOINTS:
             with self.subTest(endpoint=endpoint):
                 self.assertIn(endpoint, booking)
+        # Lo que se publica, no solo la fuente: las notas del cliente deben
+        # seguir viajando en el POST después de pasar por el inliner.
+        self.assertIn("notes:", booking)
         self.assertNotIn("Demo interactiva · no crea una reserva real", booking)
 
     def test_public_output_is_generated_and_never_versioned(self):
