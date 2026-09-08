@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <!--
-  FUENTE SIMULADA — la consume EXCLUSIVAMENTE scripts/build-sites.mjs (la
-  publicación de Sites que ya está en línea y aprobada por el dueño). Este
-  flujo no envía datos ni crea reservas reales, a propósito.
+  FUENTE REAL — la consume EXCLUSIVAMENTE scripts/build-cloudflare.mjs
+  (Worker de Cloudflare, salida en public/reservar/index.html). Este flujo
+  llama de verdad a /api/config, /api/availability y /api/bookings, y crea
+  eventos en Google Calendar.
 
-  El flujo conectado a /api/* vive en index.real.html, que consume
-  scripts/build-cloudflare.mjs. Si vas a tocar el agendamiento real, ese es
-  el archivo — no este.
+  NO la usa el pipeline de Sites: ese lee reservation-prototype/index.html,
+  que sigue siendo la demo simulada ya publicada y aprobada. Si vas a
+  cambiar la demo pública, ese es el archivo — no este.
 -->
 <html lang="es"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Demo interactiva de reserva de Evolution Studio. No crea reservas reales ni guarda datos.">
+<meta name="description" content="Reserva tu hora en Evolution Studio. Elige servicio, barbero y horario disponible en línea.">
 <title>Reservar — Evolution Studio</title>
 <link href="assets/fonts.css" rel="stylesheet">
 <link rel="stylesheet" href="assets/bootstrap-icons.css">
@@ -672,7 +673,7 @@ button{color:inherit}
     </a>
     <a class="gh-home-link" href="/"><i class="bi bi-arrow-left" aria-hidden="true"></i> Inicio</a>
   </div>
-  <p class="gh-demo-status">Demo interactiva · no crea una reserva real</p>
+  <p class="gh-demo-status">Reserva en línea · confirmación inmediata</p>
 </header>
 
 <!-- STEPPER -->
@@ -689,93 +690,18 @@ button{color:inherit}
   <aside class="gh-live-summary" id="liveSummary" aria-live="polite"></aside>
   <div class="gh-sections">
   <div class="gh-flow-message" id="flowMessage" role="status" aria-live="polite" tabindex="-1"></div>
-  <noscript><span class="gh-noscript">Esta simulación necesita JavaScript para cambiar de paso y completar el recorrido.</span></noscript>
+  <noscript><span class="gh-noscript">Esta reserva necesita JavaScript para cambiar de paso y confirmar tu cita.</span></noscript>
 
   <!-- ══════ PASO 1 — SERVICIO ══════ -->
   <div class="gh-section active" id="s1">
     <div class="gh-page-head">
       <div class="gh-step-tag">Paso 1 de 4</div>
       <h1 class="gh-page-title">Selecciona un servicio</h1>
-      <p class="gh-data-note">Datos de muestra</p>
+      <p class="gh-data-note">Servicios disponibles</p>
     </div>
-    <div class="gh-svc-grid" id="svcGrid"><button type="button" class="gh-svc-card" onclick="selSvc(3,this)" aria-pressed="false" data-id="3" data-nombre="Barba" data-dur="15" data-precio="5000.00" data-icono="bi-emoji-smile">
-      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
-      <div class="gh-svc-icon-wrap"><i class="bi bi-emoji-smile"></i></div>
-      <div class="gh-svc-body">
-        <div class="gh-svc-name">Barba</div>
-        <div class="gh-svc-desc">Perfilado y desvanecido de barba</div>
-      </div>
-      <div class="gh-svc-price-col">
-        <div class="gh-svc-price">$5.000</div>
-        <div class="gh-svc-dur">15 min</div>
-      </div>
-    </button><button type="button" class="gh-svc-card" onclick="selSvc(9,this)" aria-pressed="false" data-id="9" data-nombre="Corte + Barba" data-dur="60" data-precio="15000.00" data-icono="bi-scissors">
-      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
-      <div class="gh-svc-icon-wrap"><i class="bi bi-scissors"></i></div>
-      <div class="gh-svc-body">
-        <div class="gh-svc-name">Corte + Barba</div>
-        <div class="gh-svc-desc">Corte de cabello y perfilado de barba</div>
-      </div>
-      <div class="gh-svc-price-col">
-        <div class="gh-svc-price">$15.000</div>
-        <div class="gh-svc-dur">60 min</div>
-      </div>
-    </button><button type="button" class="gh-svc-card" onclick="selSvc(8,this)" aria-pressed="false" data-id="8" data-nombre="Corte Clásico" data-dur="30" data-precio="10000.00" data-icono="bi-scissors">
-      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
-      <div class="gh-svc-icon-wrap"><i class="bi bi-scissors"></i></div>
-      <div class="gh-svc-body">
-        <div class="gh-svc-name">Corte Clásico</div>
-        <div class="gh-svc-desc">Corte de cabello estilo clásico con asesoría profesional</div>
-      </div>
-      <div class="gh-svc-price-col">
-        <div class="gh-svc-price">$10.000</div>
-        <div class="gh-svc-dur">30 min</div>
-      </div>
-    </button><button type="button" class="gh-svc-card" onclick="selSvc(1,this)" aria-pressed="false" data-id="1" data-nombre="Corte desvanecido" data-dur="60" data-precio="12000.00" data-icono="bi-scissors">
-      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
-      <div class="gh-svc-icon-wrap"><i class="bi bi-scissors"></i></div>
-      <div class="gh-svc-body">
-        <div class="gh-svc-name">Corte desvanecido</div>
-        <div class="gh-svc-desc">Corte de cabello desvanecido con asesoramiento profesional</div>
-      </div>
-      <div class="gh-svc-price-col">
-        <div class="gh-svc-price">$12.000</div>
-        <div class="gh-svc-dur">60 min</div>
-      </div>
-    </button><button type="button" class="gh-svc-card" onclick="selSvc(2,this)" aria-pressed="false" data-id="2" data-nombre="Perfilado de cejas" data-dur="15" data-precio="2000.00" data-icono="bi-emoji-smile">
-      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
-      <div class="gh-svc-icon-wrap"><i class="bi bi-emoji-smile"></i></div>
-      <div class="gh-svc-body">
-        <div class="gh-svc-name">Perfilado de cejas</div>
-        <div class="gh-svc-desc">Perfilado o diseño ( corte de ceja)</div>
-      </div>
-      <div class="gh-svc-price-col">
-        <div class="gh-svc-price">$2.000</div>
-        <div class="gh-svc-dur">15 min</div>
-      </div>
-    </button><button type="button" class="gh-svc-card" onclick="selSvc(6,this)" aria-pressed="false" data-id="6" data-nombre="Rulos- ondulación" data-dur="120" data-precio="40000.00" data-icono="bi-stars">
-      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
-      <div class="gh-svc-icon-wrap"><i class="bi bi-stars"></i></div>
-      <div class="gh-svc-body">
-        <div class="gh-svc-name">Rulos- ondulación</div>
-        <div class="gh-svc-desc">+ corte de cabello incluido</div>
-      </div>
-      <div class="gh-svc-price-col">
-        <div class="gh-svc-price">$40.000</div>
-        <div class="gh-svc-dur">120 min</div>
-      </div>
-    </button><button type="button" class="gh-svc-card" onclick="selSvc(5,this)" aria-pressed="false" data-id="5" data-nombre="Visos" data-dur="120" data-precio="50000.00" data-icono="bi-brush">
-      <div class="gh-svc-ck"><i class="bi bi-check-lg"></i></div>
-      <div class="gh-svc-icon-wrap"><i class="bi bi-brush"></i></div>
-      <div class="gh-svc-body">
-        <div class="gh-svc-name">Visos</div>
-        <div class="gh-svc-desc">Iluminación en tu cabello del color deseado</div>
-      </div>
-      <div class="gh-svc-price-col">
-        <div class="gh-svc-price">$50.000</div>
-        <div class="gh-svc-dur">120 min</div>
-      </div>
-    </button></div>
+    <div class="gh-svc-grid" id="svcGrid">
+      <div class="gh-loader" style="grid-column:1/-1"><i class="bi bi-arrow-repeat gh-spin"></i></div>
+    </div>
   </div>
 
   <!-- ══════ PASO 2 — BARBERO ══════ -->
@@ -784,7 +710,7 @@ button{color:inherit}
       <div class="gh-step-tag">Paso 2 de 4</div>
       <h1 class="gh-page-title">Elige tu artesano</h1>
       <p class="gh-page-sub">Cada corte es una firma. Elige al maestro que mejor se adapta a tu estilo.</p>
-      <p class="gh-data-note">Datos de muestra</p>
+      <p class="gh-data-note">Equipo disponible</p>
     </div>
     <div class="gh-barb-grid" id="barbGrid">
       <div class="gh-loader" style="grid-column:1/-1"><i class="bi bi-arrow-repeat gh-spin"></i></div>
@@ -818,7 +744,7 @@ button{color:inherit}
     <!-- Slots -->
     <div class="gh-slots-section" id="slotsSection">
       <div class="gh-pad">
-      <div class="gh-slots-lbl">Disponibilidad simulada</div>
+      <div class="gh-slots-lbl">Horarios disponibles</div>
         <div class="gh-slots-grid" id="slotsGrid"></div>
       </div>
     </div>
@@ -868,20 +794,20 @@ button{color:inherit}
       <button class="gh-btn-back" onclick="ir(3)"><i class="bi bi-arrow-left"></i> Volver</button>
       <button class="gh-btn-next" id="btnConfirm" onclick="confirmar()"><i class="bi bi-check-lg"></i> Confirmar reserva</button>
     </div>
-    <p class="gh-privacy-note">Esta demo no envía ni guarda tus datos.</p>
+    <p class="gh-privacy-note">Usamos tu nombre y teléfono únicamente para gestionar esta cita.</p>
   </div>
 
   <!-- ══════ ÉXITO ══════ -->
   <div class="gh-section" id="sOk">
     <div class="gh-success">
       <div class="gh-success-ico"><i class="bi bi-check-lg"></i></div>
-      <h2 class="gh-success-title">Reserva simulada</h2>
-      <p class="gh-success-sub">Demo interactiva · no crea una reserva real. No se guardó ni envió información.</p>
+      <h2 class="gh-success-title">Reserva confirmada</h2>
+      <p class="gh-success-sub">Tu cita quedó agendada. Guarda tu número de reserva para cualquier consulta.</p>
       <div class="gh-success-num" id="okNum"></div>
       <div id="okResumen" style="margin-top:24px;text-align:left"></div>
       <div class="gh-success-actions">
         <button class="gh-new-btn" type="button" onclick="reiniciarDemo()">
-          <i class="bi bi-plus-lg"></i> Nueva simulación
+          <i class="bi bi-plus-lg"></i> Nueva reserva
         </button>
         <a class="gh-new-btn gh-home-btn" href="/"><i class="bi bi-arrow-left"></i> Volver al inicio</a>
       </div>
@@ -913,7 +839,18 @@ button{color:inherit}
 <script>
 const TIME_ZONE = 'America/Santiago';
 const WINDOW_DAYS = 60;
-const DEMO_SLOTS = ['15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30'];
+// Mensajes por código de error del backend (src/lib/errors.js). Cualquier
+// código no listado cae al mensaje genérico de confirmar().
+const MENSAJES_ERROR = {
+  SLOT_UNAVAILABLE: 'Ese horario acaba de ocuparse. Elige otro, por favor.',
+  INVALID_NAME: 'Ingresa tu nombre completo (al menos 2 caracteres).',
+  INVALID_PHONE: 'Revisa el teléfono: usa solo números y espacios, con o sin +56 al inicio.',
+  INVALID_DATE: 'La fecha seleccionada no es válida. Vuelve a elegirla.',
+  INVALID_TIME: 'El horario seleccionado no es válido. Vuelve a elegirlo.',
+  SERVICE_NOT_FOUND: 'Ese servicio ya no está disponible. Vuelve a elegir uno.',
+  BARBER_NOT_FOUND: 'Ese barbero ya no está disponible. Vuelve a elegir uno.',
+  CALENDAR_CREATE_FAILED: 'No pudimos registrar la cita en la agenda. Inténtalo nuevamente en unos minutos.',
+};
 const MESES    = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DOWS     = ['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
 
@@ -951,6 +888,11 @@ function initialState() {
     fecha: null,
     hora: null,
     cliente: null,
+    // Se genera al llegar al paso 4 y se conserva mientras la reserva no
+    // cambie, para que un doble clic reintente la MISMA reserva en vez de
+    // crear dos eventos distintos en Calendar.
+    idempotencyKey: null,
+    enviando: false,
     loaded: { svc: false, barb: false },
   };
 }
@@ -973,16 +915,16 @@ function clearFlowMessage() {
 
 // ── Navegación ────────────────────────────────────────────────────
 function ir(n) {
-  if (n > 1 && !state.servicio && state.loaded.svc) {
+  if (n > 1 && !state.servicio) {
     showFlowMessage('Selecciona un servicio para continuar.', '#svcGrid .gh-svc-card');
     return;
   }
   if (n > 2 && !state.barbero) {
-    showFlowMessage('Selecciona un barbero de muestra para continuar.', '#barbGrid .gh-barb-card');
+    showFlowMessage('Selecciona un barbero para continuar.', '#barbGrid .gh-barb-card');
     return;
   }
   if (n > 3 && (!state.fecha || !state.hora)) {
-    showFlowMessage('Selecciona una fecha y un horario de muestra para continuar.', '#calWrap');
+    showFlowMessage('Selecciona una fecha y un horario para continuar.', '#calWrap');
     return;
   }
 
@@ -1016,30 +958,42 @@ function ir(n) {
   window.scrollTo(0, 0);
 }
 
+// ── Configuración (servicios + barberos) ──────────────────────────
+// /api/config entrega ambos en una sola respuesta; se memoiza para no
+// repetir la llamada al entrar al paso 2.
+let configPromise = null;
+function cargarConfig() {
+  if (!configPromise) {
+    configPromise = fetch('/api/config', { headers: { 'Accept': 'application/json' } })
+      .then(resp => {
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        return resp.json();
+      })
+      .catch(err => { configPromise = null; throw err; });
+  }
+  return configPromise;
+}
+
 // ── PASO 1: Servicios ─────────────────────────────────────────────
 async function cargarServicios() {
-  const r = { servicios: [
-    {id:3,nombre:'Barba',descripcion:'Perfilado y desvanecido de barba',duracion_min:15,precio:5000,icono:'bi-emoji-smile'},
-    {id:9,nombre:'Corte + Barba',descripcion:'Corte de cabello y perfilado de barba',duracion_min:60,precio:15000,icono:'bi-scissors'},
-    {id:8,nombre:'Corte Clásico',descripcion:'Corte de cabello estilo clásico con asesoría profesional',duracion_min:30,precio:10000,icono:'bi-scissors'},
-    {id:1,nombre:'Corte desvanecido',descripcion:'Corte de cabello desvanecido con asesoramiento profesional',duracion_min:60,precio:12000,icono:'bi-scissors'},
-    {id:2,nombre:'Perfilado de cejas',descripcion:'Perfilado o diseño ( corte de ceja)',duracion_min:15,precio:2000,icono:'bi-emoji-smile'},
-    {id:6,nombre:'Rulos- ondulación',descripcion:'+ corte de cabello incluido',duracion_min:120,precio:40000,icono:'bi-stars'},
-    {id:5,nombre:'Visos',descripcion:'Iluminación en tu cabello del color deseado',duracion_min:120,precio:50000,icono:'bi-brush'}
-  ] };
-  state.loaded.svc = true;
   const el = document.getElementById('svcGrid');
+  el.innerHTML = '<div class="gh-loader" style="grid-column:1/-1"><i class="bi bi-arrow-repeat gh-spin"></i></div>';
 
-  if (!r?.servicios?.length) {
-    // Sin servicios → ir directo al paso 2
-    el.innerHTML = '';
-    state.servicio = { id: 0, nombre: '', duracion_min: 30, precio: null, icono: 'bi-scissors' };
-    ir(2);
-    document.querySelector('[data-s="1"]').style.display = 'none';
+  let r;
+  try {
+    r = await cargarConfig();
+  } catch (err) {
+    el.innerHTML = '<div class="gh-slots-empty">No pudimos cargar los servicios. Revisa tu conexión y vuelve a intentarlo.</div>';
     return;
   }
 
-  const svcs = r.servicios;
+  const svcs = r?.servicios ?? [];
+  if (!svcs.length) {
+    el.innerHTML = '<div class="gh-slots-empty">No hay servicios disponibles por ahora.</div>';
+    return;
+  }
+
+  state.loaded.svc = true;
   el.innerHTML = svcs.map(s => {
     const precio = s.precio ? '$' + parseFloat(s.precio).toLocaleString('es-CL', {minimumFractionDigits:0}) : '';
     return `<button type="button" class="gh-svc-card" onclick="selSvc(${s.id},this)" aria-pressed="false"
@@ -1093,20 +1047,26 @@ function selSvc(id, el) {
 
 // ── PASO 2: Barberos ──────────────────────────────────────────────
 async function cargarBarberos() {
-  const r = { trabajadores: [
-    {id:4,nombre:'Cristóbal',color:'#ffffff',descripcion:''},
-    {id:3,nombre:'Erik',color:'#d19d01',descripcion:''},
-    {id:1,nombre:'Leonardo',color:'#ff4015',descripcion:'Barbero profesional con 4 años de experiencia en barbería'},
-    {id:5,nombre:'Matute',color:'#76bb40',descripcion:''},
-    {id:2,nombre:'Vicente',color:'#0056d6',descripcion:'Barbero profesional con más de 5 años de experiencia'}
-  ] };
-  state.loaded.barb = true;
   const el = document.getElementById('barbGrid');
-  if (!r?.trabajadores?.length) {
-    el.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:20px">No hay barberos disponibles.</p>';
+  el.innerHTML = '<div class="gh-loader" style="grid-column:1/-1"><i class="bi bi-arrow-repeat gh-spin"></i></div>';
+
+  let r;
+  try {
+    r = await cargarConfig();
+  } catch (err) {
+    el.innerHTML = '<div class="gh-slots-empty">No pudimos cargar el equipo. Revisa tu conexión y vuelve a intentarlo.</div>';
     return;
   }
-  el.innerHTML = r.trabajadores.map(b => {
+
+  // /api/config responde { servicios, barberos } — solo los barberos activos.
+  const barberos = r?.barberos ?? [];
+  if (!barberos.length) {
+    el.innerHTML = '<div class="gh-slots-empty">No hay barberos disponibles por ahora.</div>';
+    return;
+  }
+
+  state.loaded.barb = true;
+  el.innerHTML = barberos.map(b => {
     const initials = b.nombre.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
     const tags = (b.descripcion || '').split(',').map(t => t.trim()).filter(Boolean);
     return `<button type="button" class="gh-barb-card" onclick="selBarb(${b.id},this)" aria-pressed="false"
@@ -1151,7 +1111,7 @@ function selBarb(id, el) {
         <div class="gh-exp-key">Duración</div>
       </div>
       <div class="gh-exp-stat">
-        <div class="gh-exp-val"><i class="bi bi-calendar-check"></i> Simulada</div>
+        <div class="gh-exp-val"><i class="bi bi-calendar-check"></i> En línea</div>
         <div class="gh-exp-key">Disponibilidad</div>
       </div>
     </div>`;
@@ -1211,23 +1171,41 @@ function renderCal() {
 }
 
 async function selFecha(fecha) {
-  state.fecha = fecha; state.hora = null;
+  state.fecha = fecha; state.hora = null; state.idempotencyKey = null;
   document.getElementById('btn4').disabled = true;
   renderCal();
 
   const sec = document.getElementById('slotsSection');
   const grid = document.getElementById('slotsGrid');
   sec.classList.add('vis');
-  const snapshot = santiagoSnapshot();
-  const slots = DEMO_SLOTS.filter(hour => fecha !== HOY || slotMinutes(hour) > snapshot.minutes);
-  const r = { slots };
+  grid.innerHTML = '<div class="gh-slots-loader"><i class="bi bi-arrow-repeat gh-spin"></i></div>';
 
-  if (!r?.slots?.length) {
-    grid.innerHTML = '<div class="gh-slots-empty"><i class="bi bi-calendar-x" style="font-size:1.5rem;display:block;margin-bottom:6px;opacity:.4"></i>Sin horarios de muestra disponibles para este día</div>';
+  const params = new URLSearchParams({
+    serviceId: state.servicio.id,
+    barberId: state.barbero.id,
+    date: fecha,
+  });
+
+  let r;
+  try {
+    const resp = await fetch('/api/availability?' + params.toString(), { headers: { 'Accept': 'application/json' } });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    r = await resp.json();
+  } catch (err) {
+    grid.innerHTML = '<div class="gh-slots-empty">No pudimos cargar los horarios de este día. Inténtalo nuevamente.</div>';
     return;
   }
-  grid.innerHTML = r.slots.map(h => `
-    <button type="button" class="gh-slot" onclick="selSlot('${h}',this)" aria-pressed="false" aria-label="Horario de muestra ${fmtHora(h)}">${fmtHora(h)}</button>`).join('');
+
+  // Respuesta que llega tarde después de cambiar de día: se descarta.
+  if (fecha !== state.fecha) return;
+
+  const slots = r?.slots ?? [];
+  if (!slots.length) {
+    grid.innerHTML = '<div class="gh-slots-empty"><i class="bi bi-calendar-x" style="font-size:1.5rem;display:block;margin-bottom:6px;opacity:.4"></i>Sin horarios disponibles para este día</div>';
+    return;
+  }
+  grid.innerHTML = slots.map(h => `
+    <button type="button" class="gh-slot" onclick="selSlot('${h}',this)" aria-pressed="false" aria-label="Horario ${fmtHora(h)}">${fmtHora(h)}</button>`).join('');
   clearFlowMessage();
   updateLiveSummary();
 }
@@ -1240,13 +1218,25 @@ function selSlot(hora, el) {
   el.classList.add('sel');
   el.setAttribute('aria-pressed', 'true');
   state.hora = hora;
+  // Cambiar de horario invalida la clave: un reintento nunca debe confirmar
+  // el horario anterior de forma idempotente.
+  state.idempotencyKey = null;
   document.getElementById('btn4').disabled = false;
   clearFlowMessage();
   updateLiveSummary();
 }
 
 // ── PASO 4: Resumen ───────────────────────────────────────────────
+function nuevaIdempotencyKey() {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+}
+
 function renderResumen() {
+  // Una clave por reserva concreta: se crea al llegar acá y solo se
+  // renueva si el cliente cambia el horario (ver selSlot/selFecha).
+  if (!state.idempotencyKey) state.idempotencyKey = nuevaIdempotencyKey();
   const fechaFmt = state.fecha
     ? formatDate(state.fecha)
     : '';
@@ -1287,10 +1277,13 @@ function renderResumen() {
 
 // ── Confirmar cita ────────────────────────────────────────────────
 async function confirmar() {
+  if (state.enviando) return;
+
   const nombre = document.getElementById('fNombre').value.trim();
   const tel    = document.getElementById('fTel').value.trim();
   const notas  = document.getElementById('fNotas').value.trim();
   const errEl  = document.getElementById('fErr');
+  const btn    = document.getElementById('btnConfirm');
 
   if (!nombre || !tel) {
     errEl.textContent = 'Nombre y teléfono son obligatorios.';
@@ -1301,8 +1294,60 @@ async function confirmar() {
   errEl.classList.remove('vis');
   state.cliente = { nombre, telefono: tel, notas };
 
-  // Éxito simulado: este prototipo nunca envía datos ni crea una cita real.
-  document.getElementById('okNum').textContent = '#DEMO';
+  // Botón bloqueado mientras la solicitud está en vuelo: primera barrera
+  // contra el doble envío (la segunda es state.idempotencyKey en el backend).
+  state.enviando = true;
+  btn.disabled = true;
+  const etiquetaBoton = btn.innerHTML;
+  btn.innerHTML = '<i class="bi bi-arrow-repeat gh-spin"></i> Confirmando…';
+
+  let resp, data;
+  try {
+    resp = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        serviceId: state.servicio.id,
+        barberId: state.barbero.id,
+        date: state.fecha,
+        time: state.hora,
+        name: state.cliente.nombre,
+        phone: state.cliente.telefono,
+        idempotencyKey: state.idempotencyKey,
+      }),
+    });
+    data = await resp.json().catch(() => ({}));
+  } catch (err) {
+    state.enviando = false;
+    btn.disabled = false;
+    btn.innerHTML = etiquetaBoton;
+    errEl.textContent = 'No pudimos conectar con el sistema de reservas. Revisa tu conexión e inténtalo otra vez.';
+    errEl.classList.add('vis');
+    return;
+  }
+
+  state.enviando = false;
+  btn.disabled = false;
+  btn.innerHTML = etiquetaBoton;
+
+  // La pantalla de éxito depende de la respuesta del backend, nunca de haber
+  // llegado al final de esta función.
+  if (!resp.ok) {
+    if (data.error === 'SLOT_UNAVAILABLE') {
+      const fecha = state.fecha;
+      state.hora = null;
+      state.idempotencyKey = null;
+      ir(3);
+      showFlowMessage(MENSAJES_ERROR.SLOT_UNAVAILABLE, '#calWrap');
+      selFecha(fecha);
+      return;
+    }
+    errEl.textContent = MENSAJES_ERROR[data.error] || 'No pudimos confirmar tu reserva. Inténtalo nuevamente en unos minutos.';
+    errEl.classList.add('vis');
+    return;
+  }
+
+  document.getElementById('okNum').textContent = data.bookingId || '';
   const fechaFmt = formatDate(state.fecha);
   document.getElementById('okResumen').innerHTML = `
     <div class="gh-resumen">
@@ -1340,8 +1385,8 @@ function updateLiveSummary() {
   if (state.servicio) items.push(`<p><strong>Servicio</strong><br>${xe(state.servicio.nombre)} · ${state.servicio.duracion_min} min</p>`);
   if (state.barbero) items.push(`<p><strong>Barbero</strong><br>${xe(state.barbero.nombre)}</p>`);
   if (state.fecha) items.push(`<p><strong>Fecha</strong><br>${xe(formatDate(state.fecha))}</p>`);
-  if (state.hora) items.push(`<p><strong>Horario de muestra</strong><br>${xe(fmtHora(state.hora))}</p>`);
-  summary.innerHTML = items.length ? `<h2>Tu simulación</h2>${items.join('')}` : '';
+  if (state.hora) items.push(`<p><strong>Horario</strong><br>${xe(fmtHora(state.hora))}</p>`);
+  summary.innerHTML = items.length ? `<h2>Tu reserva</h2>${items.join('')}` : '';
   summary.classList.toggle('vis', items.length > 0);
 }
 
@@ -1377,7 +1422,7 @@ function formatDate(key){
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 function fmtHora(h){
-  return DEMO_SLOTS.includes(h) ? h : '';
+  return /^\d{2}:\d{2}$/.test(h ?? '') ? h : '';
 }
 
 // ── Init ──────────────────────────────────────────────────────────

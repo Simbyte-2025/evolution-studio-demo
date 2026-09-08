@@ -4,6 +4,11 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build-sites.mjs",
-    "test": "python3 -m unittest discover -s tests -v"
+    "build:cloudflare": "node scripts/build-cloudflare.mjs",
+    "test": "python3 -m unittest discover -s tests -v",
+    "test:node": "node --test 'src/**/*.test.js'"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
   }
 }

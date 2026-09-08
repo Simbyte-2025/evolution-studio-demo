@@ -12,7 +12,11 @@ const asDataUrl = async (path, mime) => {
   return `data:${mime};base64,${contents.toString("base64")}`;
 };
 
-export async function buildReservationStandaloneHtml() {
+// `sourceFile` decide qué flujo se empaqueta, sin duplicar el inlineado de
+// fuentes/íconos/logo. Por defecto es index.html (la demo simulada que sirve
+// el pipeline de Sites, que llama a esta función sin argumentos y por lo
+// tanto no cambia); build-cloudflare.mjs pasa index.real.html.
+export async function buildReservationStandaloneHtml(sourceFile = "index.html") {
   const [
     sourceHtml,
     sourceFontsCss,
@@ -22,7 +26,7 @@ export async function buildReservationStandaloneHtml() {
     jostUrl,
     iconsUrl,
   ] = await Promise.all([
-    readFile(resolve(prototype, "index.html"), "utf8"),
+    readFile(resolve(prototype, sourceFile), "utf8"),
     readFile(resolve(assets, "fonts.css"), "utf8"),
     readFile(resolve(assets, "bootstrap-icons.css"), "utf8"),
     asDataUrl(resolve(assets, "evolution-logo-instagram.jpeg"), "image/jpeg"),
