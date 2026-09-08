@@ -74,6 +74,14 @@ class SourceSeparationTests(unittest.TestCase):
         self.assertNotIn("crypto.randomUUID", confirmar.group(1))
         self.assertIn("state.idempotencyKey", REAL)
 
+    def test_real_source_sends_the_client_notes_to_the_backend(self):
+        # El formulario aprobado tiene campo "Notas". Si no viaja en el POST,
+        # el cliente escribe algo importante y el barbero nunca lo ve.
+        body = re.search(r"body: JSON\.stringify\(\{(.*?)\n      \}\)", REAL, re.DOTALL)
+        self.assertIsNotNone(body, "no encontré el cuerpo del POST a /api/bookings")
+        self.assertIn("notes:", body.group(1))
+        self.assertIn("INVALID_NOTES", REAL)
+
     def test_real_source_only_shows_success_when_the_backend_confirms(self):
         self.assertIn("SLOT_UNAVAILABLE", REAL)
         self.assertIn("bookingId", REAL)

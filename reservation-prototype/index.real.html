@@ -774,7 +774,7 @@ button{color:inherit}
       </div>
       <div class="gh-field">
         <label for="fNotas">Notas <span style="color:var(--text-dim);text-transform:none;font-size:.68rem">(opcional)</span></label>
-        <textarea id="fNotas" rows="2" placeholder="Alguna indicación especial..."></textarea>
+        <textarea id="fNotas" rows="2" maxlength="500" placeholder="Alguna indicación especial..."></textarea>
       </div>
     </div>
 
@@ -844,7 +844,8 @@ const WINDOW_DAYS = 60;
 const MENSAJES_ERROR = {
   SLOT_UNAVAILABLE: 'Ese horario acaba de ocuparse. Elige otro, por favor.',
   INVALID_NAME: 'Ingresa tu nombre completo (al menos 2 caracteres).',
-  INVALID_PHONE: 'Revisa el teléfono: usa solo números y espacios, con o sin +56 al inicio.',
+  INVALID_PHONE: 'Revisa el teléfono: ingresa un número válido, por ejemplo +56 9 1234 5678.',
+  INVALID_NOTES: 'Las notas son demasiado largas. Resúmelas en 500 caracteres o menos.',
   INVALID_DATE: 'La fecha seleccionada no es válida. Vuelve a elegirla.',
   INVALID_TIME: 'El horario seleccionado no es válido. Vuelve a elegirlo.',
   SERVICE_NOT_FOUND: 'Ese servicio ya no está disponible. Vuelve a elegir uno.',
@@ -1313,6 +1314,7 @@ async function confirmar() {
         time: state.hora,
         name: state.cliente.nombre,
         phone: state.cliente.telefono,
+        notes: state.cliente.notas,
         idempotencyKey: state.idempotencyKey,
       }),
     });

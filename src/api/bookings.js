@@ -9,11 +9,14 @@ import {
   CalendarError,
 } from '../lib/calendar.js';
 import { ApiError } from '../lib/errors.js';
+import { normalizePhone } from '../lib/phone.js';
 
-const PHONE_PATTERN = /^\+?[0-9 ]{6,20}$/;
+// Las notas van al evento de Calendar, que el barbero lee: se acotan pero
+// nunca se truncan en silencio — si el cliente escribe de más, se le avisa.
+const MAX_NOTES_LENGTH = 500;
 
 function validateBookingInput(input) {
-  const { serviceId, barberId, date, time, name, phone, idempotencyKey } = input ?? {};
+  const { serviceId, barberId, date, time, name, phone, notes, idempotencyKey } = input ?? {};
 
   if (!serviceId || !barberId) throw new ApiError(400, 'MISSING_SERVICE_OR_BARBER');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) throw new ApiError(400, 'INVALID_DATE');
@@ -22,17 +25,29 @@ function validateBookingInput(input) {
   const trimmedName = (name ?? '').trim();
   if (trimmedName.length < 2 || trimmedName.length > 80) throw new ApiError(400, 'INVALID_NAME');
 
-  const trimmedPhone = (phone ?? '').trim();
-  if (!PHONE_PATTERN.test(trimmedPhone)) throw new ApiError(400, 'INVALID_PHONE');
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) throw new ApiError(400, 'INVALID_PHONE');
+
+  const trimmedNotes = (notes ?? '').trim();
+  if (trimmedNotes.length > MAX_NOTES_LENGTH) throw new ApiError(400, 'INVALID_NOTES');
 
   if (!idempotencyKey || String(idempotencyKey).length < 8) throw new ApiError(400, 'MISSING_IDEMPOTENCY_KEY');
 
-  return { serviceId, barberId, date, time, name: trimmedName, phone: trimmedPhone, idempotencyKey };
+  return {
+    serviceId,
+    barberId,
+    date,
+    time,
+    name: trimmedName,
+    phone: normalizedPhone,
+    notes: trimmedNotes,
+    idempotencyKey,
+  };
 }
 
 // POST /api/bookings
 export async function createBooking({ input, env, fetchImpl = fetch }) {
-  const { serviceId, barberId, date, time, name, phone, idempotencyKey } = validateBookingInput(input);
+  const { serviceId, barberId, date, time, name, phone, notes, idempotencyKey } = validateBookingInput(input);
 
   const service = findServiceById(serviceId);
   if (!service) throw new ApiError(400, 'SERVICE_NOT_FOUND');
@@ -108,9 +123,12 @@ export async function createBooking({ input, env, fetchImpl = fetch }) {
       description: [
         `Reserva: ${bookingId}`,
         `Cliente: ${name}`,
-        `Teléfono: ${phone}`,
+        // Agrupado y sin ambigüedad de país: es lo que el barbero marca.
+        `Teléfono: ${phone.display}`,
         `Servicio: ${service.nombre}`,
         `Barbero: ${barber.nombre}`,
+        // Solo aparece si el cliente escribió algo — nunca una línea vacía.
+        ...(notes ? [`Notas: ${notes}`] : []),
         'Origen: evolution-landing',
       ].join('\n'),
       start: formatRfc3339(startInstant, timeZone),

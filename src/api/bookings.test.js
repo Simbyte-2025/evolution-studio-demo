@@ -209,3 +209,72 @@ test('two independent, sequential /api/bookings calls with the same idempotencyK
     'el reintento no debería volver a intentar events.insert'
   );
 });
+
+// ── Notas del cliente y normalización de teléfono ──────────────────────
+// El campo "Notas" existe en el formulario aprobado. Si el backend lo
+// descarta en silencio, un cliente que escribe "soy alérgico al tinte"
+// recibe confirmación y el barbero nunca se entera. Estos tests miran el
+// payload real de events.insert, no el valor de retorno.
+
+function makeInsertCapturingMock() {
+  const { fetchImpl, calls } = makeFetchMock([
+    ['oauth2.googleapis.com/token', () => jsonResponse(200, { access_token: 'tok', expires_in: 3599 })],
+    ['/events/', () => jsonResponse(404, { error: 'not found' })],
+    ['freeBusy', () => jsonResponse(200, { calendars: { 'calendar-a@group.calendar.google.com': { busy: [] } } })],
+    ['/events?sendUpdates=all', () => jsonResponse(200, { id: 'evt-created' })],
+  ]);
+  const insertedEvent = () => JSON.parse(calls.find((c) => c.url.includes('/events?sendUpdates=all')).opts.body);
+  return { fetchImpl, insertedEvent };
+}
+
+test('the client notes reach the event description so the barber can read them', async () => {
+  const { fetchImpl, insertedEvent } = makeInsertCapturingMock();
+
+  await createBooking({
+    input: { ...VALID_INPUT, notes: 'Soy alérgico al tinte' },
+    env: FAKE_ENV,
+    fetchImpl,
+  });
+
+  assert.match(insertedEvent().description, /Notas: Soy alérgico al tinte/);
+});
+
+test('a booking without notes does not add an empty Notas line', async () => {
+  const { fetchImpl, insertedEvent } = makeInsertCapturingMock();
+
+  await createBooking({ input: { ...VALID_INPUT, notes: '   ' }, env: FAKE_ENV, fetchImpl });
+
+  assert.doesNotMatch(insertedEvent().description, /Notas:/);
+});
+
+test('rejects notes longer than the limit instead of truncating them silently', async () => {
+  const { fetchImpl } = makeInsertCapturingMock();
+
+  await assert.rejects(
+    () => createBooking({ input: { ...VALID_INPUT, notes: 'x'.repeat(501) }, env: FAKE_ENV, fetchImpl }),
+    (err) => err instanceof ApiError && err.status === 400 && err.code === 'INVALID_NOTES'
+  );
+});
+
+test('accepts a phone with spaces, dashes and parentheses and normalizes it for Calendar', async () => {
+  const { fetchImpl, insertedEvent } = makeInsertCapturingMock();
+
+  const result = await createBooking({
+    input: { ...VALID_INPUT, phone: '(+56) 9 1234-5678' },
+    env: FAKE_ENV,
+    fetchImpl,
+  });
+
+  assert.match(result.bookingId, /^EV-/);
+  // El barbero lee un número agrupado y sin ambigüedad de país.
+  assert.match(insertedEvent().description, /Teléfono: \+56 9 1234 5678/);
+});
+
+test('still rejects a phone that is not a phone number', async () => {
+  const { fetchImpl } = makeInsertCapturingMock();
+
+  await assert.rejects(
+    () => createBooking({ input: { ...VALID_INPUT, phone: 'llámame al local' }, env: FAKE_ENV, fetchImpl }),
+    (err) => err instanceof ApiError && err.code === 'INVALID_PHONE'
+  );
+});
