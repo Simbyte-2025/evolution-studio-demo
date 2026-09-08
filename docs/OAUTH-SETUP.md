@@ -99,7 +99,28 @@ autorizado la app antes. Revoca el acceso en
 - [ ] La cuenta administradora (`nicolas.caballero.sepulveda@gmail.com`)
       confirma que **ve ambos calendarios compartidos** en su Google
       Calendar, con permiso para modificar eventos y ver detalles.
-      *(Pendiente de verificar.)*
+
+      *Estado (2026-09-08):* el **permiso ya está concedido**. Consultando
+      `acl.list` de ambos calendarios con el token de la cuenta
+      organizadora, los dos devuelven exactamente tres entradas: el propio
+      calendario (`owner`), `agenda.evolution.demo@gmail.com` (`owner`) y
+      `nicolas.caballero.sepulveda@gmail.com` con rol **`writer`** — que es
+      el permiso para modificar eventos y ver detalles.
+
+      La ACL prueba que la concesión existe, **no** que la administradora la
+      haya aceptado: en cuentas Gmail personales el calendario compartido no
+      aparece en la lista del destinatario hasta que acepta la invitación, y
+      eso solo se comprueba con `calendarList` bajo el token de esa cuenta,
+      que este proyecto no tiene. Por eso la casilla sigue abierta: falta que
+      la administradora confirme que los ve agregados.
+
+      Esta casilla **no se puede cerrar por API**: pide una confirmación
+      humana ("la cuenta administradora confirma"). Que quede abierta con la
+      ACL ya verificada es su estado correcto, no uno provisional.
+
+      Los correos de los barberos no figuran en la ACL, y es lo esperado:
+      entran al evento como *attendees* (`src/api/bookings.js`), no como
+      compartidos del calendario.
 - [ ] `npx wrangler dev` levanta y `/api/config` responde.
 - [ ] `/api/availability` devuelve horarios reales de cada calendario.
 
