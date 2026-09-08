@@ -8,7 +8,7 @@ const FAKE_ENV = {
   GOOGLE_CLIENT_SECRET: 'fake-client-secret',
   GOOGLE_REFRESH_TOKEN: 'fake-refresh-token',
   BUSINESS_TIMEZONE: 'America/Santiago',
-  GOOGLE_CALENDAR_ID_BARBER_A: 'calendar-a@group.calendar.google.com',
+  BARBER_A_CALENDAR_ID: 'calendar-a@group.calendar.google.com',
 };
 
 function makeFetchMock(responsesByUrl) {

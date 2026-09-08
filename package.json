@@ -6,7 +6,7 @@
     "build": "node scripts/build-sites.mjs",
     "build:cloudflare": "node scripts/build-cloudflare.mjs",
     "test": "python3 -m unittest discover -s tests -v",
-    "test:node": "node --test 'src/**/*.test.js'"
+    "test:node": "node --test 'src/**/*.test.js' 'scripts/**/*.test.js'"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

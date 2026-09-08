@@ -1,0 +1,35 @@
+# Plantilla de variables locales para `wrangler dev`.
+#
+# Copia este archivo a `.dev.vars` y reemplaza los placeholders por los
+# valores reales. `.dev.vars` está ignorado por Git a propósito: NUNCA se
+# versiona, y ningún valor real debe volver a este archivo de ejemplo.
+#
+# En Cloudflare estos mismos nombres se cargan como secretos del Worker con
+# `npx wrangler secret put <NOMBRE>` (BUSINESS_TIMEZONE es la excepción: es
+# una variable pública y ya vive en wrangler.jsonc).
+
+# ── Cliente OAuth 2.0 tipo "Aplicación de escritorio" ──────────────────
+# Se crean en Google Cloud Console. Ver docs/OAUTH-SETUP.md.
+GOOGLE_CLIENT_ID=reemplazar-con-el-client-id-de-escritorio
+GOOGLE_CLIENT_SECRET=reemplazar-con-el-client-secret
+
+# Lo genera `node scripts/oauth-setup.mjs` autorizando con la cuenta
+# organizadora. No se escribe a mano.
+GOOGLE_REFRESH_TOKEN=reemplazar-corriendo-scripts/oauth-setup.mjs
+
+# ── Calendarios DEMO (propiedad de la cuenta organizadora) ─────────────
+# Leonardo -> DEMO — Barbero 1 ; Vicente -> DEMO — Barbero 2.
+# El id se copia desde Configuración del calendario > Integrar calendario.
+BARBER_A_CALENDAR_ID=reemplazar-con-el-id-del-calendario-de-barbero-1
+BARBER_B_CALENDAR_ID=reemplazar-con-el-id-del-calendario-de-barbero-2
+
+# ── Invitados de cada evento ───────────────────────────────────────────
+# El barbero correspondiente y la cuenta administradora reciben la
+# invitación nativa de Google Calendar.
+BARBER_A_EMAIL=reemplazar-con-el-correo-del-barbero-1
+BARBER_B_EMAIL=reemplazar-con-el-correo-del-barbero-2
+OWNER_EMAIL=reemplazar-con-el-correo-de-la-cuenta-administradora
+
+# ── Opcionales ─────────────────────────────────────────────────────────
+# Minutos mínimos de anticipación para reservar. Sin definir, es 0.
+MIN_ADVANCE_MIN=0

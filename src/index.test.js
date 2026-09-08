@@ -7,7 +7,7 @@ const FAKE_ENV = {
   GOOGLE_CLIENT_SECRET: 'y',
   GOOGLE_REFRESH_TOKEN: 'z',
   BUSINESS_TIMEZONE: 'America/Santiago',
-  GOOGLE_CALENDAR_ID_BARBER_A: 'calendar-a@group.calendar.google.com',
+  BARBER_A_CALENDAR_ID: 'calendar-a@group.calendar.google.com',
   ASSETS: {
     fetch: async () => new Response('static asset', { status: 200 }),
   },

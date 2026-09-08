@@ -16,7 +16,7 @@
   // Nombres de variables/secretos esperados en runtime (nunca valores reales
   // acá — ver .dev.vars local y `wrangler secret put` en Cloudflare):
   //   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN,
-  //   GOOGLE_CALENDAR_ID_BARBER_A, GOOGLE_CALENDAR_ID_BARBER_B,
+  //   BARBER_A_CALENDAR_ID, BARBER_B_CALENDAR_ID,
   //   BARBER_A_EMAIL, BARBER_B_EMAIL, OWNER_EMAIL, BUSINESS_TIMEZONE
   "vars": {
     "BUSINESS_TIMEZONE": "America/Santiago"

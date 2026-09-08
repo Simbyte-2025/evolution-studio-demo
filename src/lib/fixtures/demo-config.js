@@ -25,9 +25,9 @@ export const DEMO_SERVICES = [
 export const DEMO_BARBERS = [
   { id: 4, nombre: 'Cristóbal', color: '#ffffff', descripcion: '', activo: false, calendarEnvKey: null, emailEnvKey: null },
   { id: 3, nombre: 'Erik', color: '#d19d01', descripcion: '', activo: false, calendarEnvKey: null, emailEnvKey: null },
-  { id: 1, nombre: 'Leonardo', color: '#ff4015', descripcion: 'Barbero profesional con 4 años de experiencia en barbería', activo: true, calendarEnvKey: 'GOOGLE_CALENDAR_ID_BARBER_A', emailEnvKey: 'BARBER_A_EMAIL' },
+  { id: 1, nombre: 'Leonardo', color: '#ff4015', descripcion: 'Barbero profesional con 4 años de experiencia en barbería', activo: true, calendarEnvKey: 'BARBER_A_CALENDAR_ID', emailEnvKey: 'BARBER_A_EMAIL' },
   { id: 5, nombre: 'Matute', color: '#76bb40', descripcion: '', activo: false, calendarEnvKey: null, emailEnvKey: null },
-  { id: 2, nombre: 'Vicente', color: '#0056d6', descripcion: 'Barbero profesional con más de 5 años de experiencia', activo: true, calendarEnvKey: 'GOOGLE_CALENDAR_ID_BARBER_B', emailEnvKey: 'BARBER_B_EMAIL' },
+  { id: 2, nombre: 'Vicente', color: '#0056d6', descripcion: 'Barbero profesional con más de 5 años de experiencia', activo: true, calendarEnvKey: 'BARBER_B_CALENDAR_ID', emailEnvKey: 'BARBER_B_EMAIL' },
 ];
 
 // Único set de horarios DEMO, igual todos los días — tal como existe hoy en
