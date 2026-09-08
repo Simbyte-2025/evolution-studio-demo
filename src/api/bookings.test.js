@@ -43,6 +43,7 @@ function jsonResponse(status, body) {
 test('createBooking confirms a valid booking when the slot is free', async () => {
   const { fetchImpl, calls } = makeFetchMock([
     ['oauth2.googleapis.com/token', () => jsonResponse(200, { access_token: 'tok', expires_in: 3599 })],
+    ['/events/', () => jsonResponse(404, { error: 'not found' })], // pre-check: primer intento, no existe
     ['freeBusy', () => jsonResponse(200, { calendars: { 'calendar-a@group.calendar.google.com': { busy: [] } } })],
     ['/events?sendUpdates=all', () => jsonResponse(200, { id: 'evt-created' })],
   ]);
@@ -64,6 +65,7 @@ test('createBooking confirms a valid booking when the slot is free', async () =>
 test('createBooking responds 409 SLOT_UNAVAILABLE when freeBusy reports an overlapping event', async () => {
   const { fetchImpl } = makeFetchMock([
     ['oauth2.googleapis.com/token', () => jsonResponse(200, { access_token: 'tok', expires_in: 3599 })],
+    ['/events/', () => jsonResponse(404, { error: 'not found' })], // pre-check: no es un reintento
     [
       'freeBusy',
       () =>
@@ -86,6 +88,7 @@ test('createBooking responds 409 SLOT_UNAVAILABLE when freeBusy reports an overl
 test('createBooking does not confirm the reservation when events.insert fails', async () => {
   const { fetchImpl } = makeFetchMock([
     ['oauth2.googleapis.com/token', () => jsonResponse(200, { access_token: 'tok', expires_in: 3599 })],
+    ['/events/', () => jsonResponse(404, { error: 'not found' })], // pre-check: no es un reintento
     ['freeBusy', () => jsonResponse(200, { calendars: { 'calendar-a@group.calendar.google.com': { busy: [] } } })],
     ['/events?sendUpdates=all', () => jsonResponse(500, { error: 'internal' })],
   ]);
@@ -96,22 +99,28 @@ test('createBooking does not confirm the reservation when events.insert fails', 
   );
 });
 
-test('createBooking is idempotent: retrying the same idempotencyKey after a 409 event-id conflict returns success without duplicating', async () => {
+test('createBooking resolves a 409 event-id conflict as idempotent success when the mocked insert itself returns 409', async () => {
   const eventId = await deriveEventId(VALID_INPUT.idempotencyKey);
   const expectedBookingId = `EV-${eventId.slice(0, 8).toUpperCase()}`;
 
+  let eventsByIdCallCount = 0;
   const { fetchImpl } = makeFetchMock([
     ['oauth2.googleapis.com/token', () => jsonResponse(200, { access_token: 'tok', expires_in: 3599 })],
-    ['freeBusy', () => jsonResponse(200, { calendars: { 'calendar-a@group.calendar.google.com': { busy: [] } } })],
-    ['/events?sendUpdates=all', () => jsonResponse(409, { error: 'already exists' })],
     [
       '/events/',
-      () =>
-        jsonResponse(200, {
+      () => {
+        eventsByIdCallCount += 1;
+        // 1ra llamada = pre-check (todavía no existe); 2da = resolución
+        // post-409 (ya existe, mismo bookingId que esta reserva).
+        if (eventsByIdCallCount === 1) return jsonResponse(404, { error: 'not found' });
+        return jsonResponse(200, {
           id: eventId,
           extendedProperties: { private: { bookingId: expectedBookingId } },
-        }),
+        });
+      },
     ],
+    ['freeBusy', () => jsonResponse(200, { calendars: { 'calendar-a@group.calendar.google.com': { busy: [] } } })],
+    ['/events?sendUpdates=all', () => jsonResponse(409, { error: 'already exists' })],
   ]);
 
   const result = await createBooking({ input: VALID_INPUT, env: FAKE_ENV, fetchImpl });
@@ -119,4 +128,84 @@ test('createBooking is idempotent: retrying the same idempotencyKey after a 409 
   assert.equal(result.bookingId, expectedBookingId);
   assert.equal(result.calendarEventId, eventId);
   assert.equal(result.idempotent, true);
+});
+
+// Simula un calendario real con estado compartido entre llamadas: freeBusy
+// refleja los eventos efectivamente creados (no un mock ciego que siempre
+// dice "libre"). Esto es lo único que puede exponer el bug real: un
+// reintento con la misma idempotencyKey vuelve a consultar freeBusy, y esa
+// consulta ahora reporta ocupado por el propio evento creado en el primer
+// intento — si el backend no distingue "ocupado por mí mismo" de "ocupado
+// por otro", el reintento recibe 409 SLOT_UNAVAILABLE en vez de éxito
+// idempotente.
+function makeStatefulCalendarMock() {
+  const events = new Map(); // eventId -> { id, start, end, extendedProperties }
+  const calls = [];
+
+  function overlaps(aStart, aEnd, bStart, bEnd) {
+    return new Date(aStart) < new Date(bEnd) && new Date(aEnd) > new Date(bStart);
+  }
+
+  const fetchImpl = async (url, opts) => {
+    const method = opts?.method ?? 'GET';
+    calls.push({ url, method });
+
+    if (url.includes('oauth2.googleapis.com/token')) {
+      return jsonResponse(200, { access_token: 'tok', expires_in: 3599 });
+    }
+
+    if (url.includes('/freeBusy')) {
+      const { timeMin, timeMax } = JSON.parse(opts.body);
+      const busy = [...events.values()]
+        .filter((e) => overlaps(e.start.dateTime, e.end.dateTime, timeMin, timeMax))
+        .map((e) => ({ start: e.start.dateTime, end: e.end.dateTime }));
+      return jsonResponse(200, { calendars: { 'calendar-a@group.calendar.google.com': { busy } } });
+    }
+
+    if (url.includes('/events?sendUpdates=all') && method === 'POST') {
+      const body = JSON.parse(opts.body);
+      if (events.has(body.id)) return jsonResponse(409, { error: 'already exists' });
+      events.set(body.id, body);
+      return jsonResponse(200, body);
+    }
+
+    if (/\/events\/[^/?]+$/.test(url) && method === 'GET') {
+      const id = decodeURIComponent(url.split('/events/')[1]);
+      const existing = events.get(id);
+      return existing ? jsonResponse(200, existing) : jsonResponse(404, { error: 'not found' });
+    }
+
+    throw new Error(`unexpected fetch to ${url} (${method})`);
+  };
+
+  return { fetchImpl, calls };
+}
+
+test('two independent, sequential /api/bookings calls with the same idempotencyKey produce exactly one event and an idempotent second response', async () => {
+  const { fetchImpl, calls } = makeStatefulCalendarMock();
+
+  const first = await createBooking({ input: VALID_INPUT, env: FAKE_ENV, fetchImpl });
+  assert.equal(first.idempotent, false);
+
+  const callsBeforeRetry = calls.length;
+
+  const second = await createBooking({ input: VALID_INPUT, env: FAKE_ENV, fetchImpl });
+
+  assert.equal(second.idempotent, true);
+  assert.equal(second.bookingId, first.bookingId);
+  assert.equal(second.calendarEventId, first.calendarEventId);
+
+  // El segundo intento debe resolverse con el pre-check (GET por id) y NO
+  // debe volver a llamar freeBusy ni events.insert.
+  const retryCalls = calls.slice(callsBeforeRetry);
+  assert.equal(
+    retryCalls.filter((c) => c.url.includes('/freeBusy')).length,
+    0,
+    'el reintento no debería volver a consultar freeBusy'
+  );
+  assert.equal(
+    retryCalls.filter((c) => c.url.includes('/events?sendUpdates=all')).length,
+    0,
+    'el reintento no debería volver a intentar events.insert'
+  );
 });

@@ -101,20 +101,31 @@ export async function createBookingEvent({
   return { event: created, idempotent: false };
 }
 
-async function resolveEventConflict({ accessToken, calendarId, eventId, bookingId, fetchImpl }) {
+// Busca un evento por id. Devuelve `null` si no existe (404) — nunca lanza
+// por "no encontrado", solo por fallas reales de la API.
+export async function getExistingBookingEvent({ accessToken, calendarId, eventId, fetchImpl = fetch }) {
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`;
   const res = await fetchImpl(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
+  if (res.status === 404) return null;
   if (!res.ok) {
     const text = await res.text();
+    throw new CalendarError(`events.get failed: ${res.status} ${text}`);
+  }
+  return res.json();
+}
+
+async function resolveEventConflict({ accessToken, calendarId, eventId, bookingId, fetchImpl }) {
+  const existing = await getExistingBookingEvent({ accessToken, calendarId, eventId, fetchImpl });
+
+  if (!existing) {
     throw new CalendarError(
-      `events.insert conflict (409) and could not verify the existing event: ${res.status} ${text}`
+      'events.insert conflict (409) but the existing event could not be found (transient state?)'
     );
   }
 
-  const existing = await res.json();
   const existingBookingId = existing?.extendedProperties?.private?.bookingId;
 
   if (existingBookingId !== bookingId) {

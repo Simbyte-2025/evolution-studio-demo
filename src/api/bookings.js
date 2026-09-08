@@ -1,7 +1,13 @@
 import { findServiceById, findBarberById } from '../lib/fixtures/demo-config.js';
 import { zonedTimeToUtc, formatRfc3339 } from '../lib/time.js';
 import { refreshAccessToken } from '../lib/google-oauth.js';
-import { queryFreeBusy, createBookingEvent, deriveEventId, CalendarError } from '../lib/calendar.js';
+import {
+  queryFreeBusy,
+  createBookingEvent,
+  getExistingBookingEvent,
+  deriveEventId,
+  CalendarError,
+} from '../lib/calendar.js';
 import { ApiError } from '../lib/errors.js';
 
 const PHONE_PATTERN = /^\+?[0-9 ]{6,20}$/;
@@ -48,11 +54,35 @@ export async function createBooking({ input, env, fetchImpl = fetch }) {
     fetchImpl,
   });
 
+  const eventId = await deriveEventId(idempotencyKey);
+  const bookingId = `EV-${eventId.slice(0, 8).toUpperCase()}`;
+
+  // Pre-check de idempotencia: si esta MISMA idempotencyKey ya produjo un
+  // evento antes (reintento de red, doble envío ya resuelto), se detecta acá
+  // ANTES de freeBusy. Es imprescindible hacerlo en este orden: una vez que
+  // el evento existe, freeBusy lo reporta como "ocupado" — y ese "ocupado"
+  // sería por la propia reserva del cliente, no por otra persona. Si se
+  // consultara freeBusy primero, todo reintento legítimo recibiría
+  // erróneamente 409 SLOT_UNAVAILABLE en vez de la confirmación idempotente.
+  const preexisting = await getExistingBookingEvent({ accessToken, calendarId, eventId, fetchImpl });
+  if (preexisting) {
+    const preexistingBookingId = preexisting?.extendedProperties?.private?.bookingId;
+    if (preexistingBookingId !== bookingId) {
+      // Colisión de hash entre dos reservas distintas (astronómicamente
+      // improbable, pero no silenciada): no es "horario ocupado", es un
+      // problema de generación de id que un reintento no puede resolver.
+      throw new ApiError(500, 'BOOKING_ID_COLLISION');
+    }
+    return { bookingId, calendarEventId: preexisting.id, idempotent: true };
+  }
+
   // Revalidación best-effort inmediatamente antes de confirmar (no es una
-  // garantía transaccional: dos solicitudes verdaderamente simultáneas
-  // podrían pasar ambas esta comprobación — ver plan, sección de
-  // concurrencia). La protección contra reintentos del MISMO envío es el
-  // event.id derivado de idempotencyKey, manejado en calendar.js.
+  // garantía transaccional: dos solicitudes verdaderamente simultáneas con
+  // idempotencyKey DISTINTAS podrían pasar ambas esta comprobación — ver
+  // plan, sección de concurrencia). El pre-check de arriba ya descartó que
+  // esto sea un reintento del mismo envío; si events.insert aun así choca
+  // con un 409 por una carrera entre el pre-check y el insert, calendar.js
+  // lo resuelve igual con el mismo criterio de bookingId coincidente.
   const busy = await queryFreeBusy({
     accessToken,
     calendarId,
@@ -62,9 +92,6 @@ export async function createBooking({ input, env, fetchImpl = fetch }) {
   });
   const overlaps = busy.some((b) => startInstant < b.end && endInstant > b.start);
   if (overlaps) throw new ApiError(409, 'SLOT_UNAVAILABLE');
-
-  const eventId = await deriveEventId(idempotencyKey);
-  const bookingId = `EV-${eventId.slice(0, 8).toUpperCase()}`;
 
   const attendees = [env[barber.emailEnvKey], env.OWNER_EMAIL]
     .filter(Boolean)
