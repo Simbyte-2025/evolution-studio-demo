@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { deriveEventId, queryFreeBusy, createBookingEvent, CalendarError } from './calendar.js';
+import {
+  deriveEventId,
+  queryFreeBusy,
+  createBookingEvent,
+  getExistingBookingEvent,
+  CalendarError,
+} from './calendar.js';
 
 function makeFetchMock(responses) {
   const calls = [];
@@ -167,5 +173,95 @@ test('createBookingEvent rejects a 409 conflict when the existing event belongs 
         fetchImpl,
       }),
     CalendarError
+  );
+});
+
+// ── El cuerpo de la respuesta de Calendar no entra al mensaje de error ──
+// Marcadores que en RUNTIME tienen la forma de una credencial real, pero
+// ensamblados por fragmentos para que ninguna forma completa aparezca
+// literalmente en un archivo versionado. tests/test_secrets_hygiene.py es
+// deliberadamente estricto: falla ante cualquier coincidencia, sin
+// excepciones por nombre, carpeta ni contenido. Ocultar el marcador es
+// trabajo del test, no de la guarda.
+const SUFIJO_CAL = '@' + ['group', 'calendar', 'google', 'com'].join('.');
+const FIXTURE = {
+  refreshToken: ['1', '//', '0', 'FIXTURE', 'a'.repeat(24)].join(''),
+  clientSecret: ['GOCSPX', '-', 'FIXTURE', 'b'.repeat(16)].join(''),
+  accessToken: ['ya29', '.', 'FIXTURE', 'c'.repeat(20)].join(''),
+  calendarId: 'ca11ab1e'.repeat(8) + SUFIJO_CAL,
+  correo: ['persona', 'ficticia'].join('.') + '@' + ['example', 'com'].join('.'),
+};
+const FUGA_CAL = FIXTURE;
+
+function respuestaConFuga(status) {
+  return {
+    ok: false,
+    status,
+    json: async () => ({}),
+    text: async () =>
+      JSON.stringify({
+        error: {
+          code: status,
+          message: `Not Found: ${FUGA_CAL.calendarId} for ${FUGA_CAL.correo}`,
+          errors: [{ domain: 'global', reason: 'notFound', message: `token ${FUGA_CAL.accessToken}` }],
+        },
+      }),
+  };
+}
+
+function assertSinFuga(err, operacion, status) {
+  for (const [nombre, valor] of Object.entries(FUGA_CAL)) {
+    assert.ok(!err.message.includes(valor), `filtró ${nombre}: ${err.message}`);
+  }
+  assert.ok(!err.message.includes('Not Found:'));
+  assert.match(err.message, new RegExp(operacion.replace(/\./g, '\\.')));
+  assert.match(err.message, new RegExp(String(status)));
+  return true;
+}
+
+test('a failed freeBusy never carries the Calendar response body into the error', async () => {
+  await assert.rejects(
+    () =>
+      queryFreeBusy({
+        accessToken: 'tok',
+        calendarId: 'cal',
+        timeMin: '2026-09-08T00:00:00Z',
+        timeMax: '2026-09-09T00:00:00Z',
+        fetchImpl: async () => respuestaConFuga(404),
+      }),
+    (err) => assertSinFuga(err, 'calendar.freeBusy', 404)
+  );
+});
+
+test('a failed events.insert never carries the Calendar response body into the error', async () => {
+  await assert.rejects(
+    () =>
+      createBookingEvent({
+        accessToken: 'tok',
+        calendarId: 'cal',
+        eventId: 'abcde',
+        bookingId: 'EV-TEST',
+        summary: 's',
+        description: 'd',
+        start: '2026-09-08T15:00:00-03:00',
+        end: '2026-09-08T15:30:00-03:00',
+        timeZone: 'America/Santiago',
+        attendees: [],
+        fetchImpl: async () => respuestaConFuga(403),
+      }),
+    (err) => assertSinFuga(err, 'calendar.events.insert', 403)
+  );
+});
+
+test('a failed events.get never carries the Calendar response body into the error', async () => {
+  await assert.rejects(
+    () =>
+      getExistingBookingEvent({
+        accessToken: 'tok',
+        calendarId: 'cal',
+        eventId: 'abcde',
+        fetchImpl: async () => respuestaConFuga(500),
+      }),
+    (err) => assertSinFuga(err, 'calendar.events.get', 500)
   );
 });

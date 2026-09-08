@@ -13,12 +13,30 @@
     // (/, /reservar, imágenes) se sirve directo desde Static Assets.
     "run_worker_first": ["/api/*"]
   },
-  // Nombres de variables/secretos esperados en runtime (nunca valores reales
-  // acá — ver .dev.vars local y `wrangler secret put` en Cloudflare):
-  //   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN,
-  //   BARBER_A_CALENDAR_ID, BARBER_B_CALENDAR_ID,
-  //   BARBER_A_EMAIL, BARBER_B_EMAIL, OWNER_EMAIL, BUSINESS_TIMEZONE
+  // Secretos esperados en runtime — SOLO nombres, nunca valores acá. Se
+  // cargan con `wrangler versions upload --secrets-file`, no con
+  // `wrangler secret put` (ese comando crea una versión y la despliega de
+  // inmediato). Declararlos hace que `versions upload` falle con un error
+  // claro si falta alguno, en vez de publicar una versión incompleta.
+  "secrets": {
+    "required": [
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET",
+      "GOOGLE_REFRESH_TOKEN",
+      "BARBER_A_CALENDAR_ID",
+      "BARBER_B_CALENDAR_ID",
+      "BARBER_A_EMAIL",
+      "BARBER_B_EMAIL",
+      "OWNER_EMAIL"
+    ]
+  },
   "vars": {
-    "BUSINESS_TIMEZONE": "America/Santiago"
+    "BUSINESS_TIMEZONE": "America/Santiago",
+    // Minutos mínimos de anticipación para reservar. 0 está aprobado
+    // EXCLUSIVAMENTE para el entorno DEMO y las pruebas de este piloto: NO
+    // es la política definitiva de Evolution, que se define con el negocio
+    // antes de producción. Declararlo acá evita que el valor desplegado
+    // dependa del fallback implícito de availability.js.
+    "MIN_ADVANCE_MIN": "0"
   }
 }

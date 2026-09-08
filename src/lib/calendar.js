@@ -1,3 +1,5 @@
+import { describeGoogleFailure } from './google-error.js';
+
 export class CalendarError extends Error {}
 
 const BASE32HEX_ALPHABET = '0123456789abcdefghijklmnopqrstuv';
@@ -39,8 +41,9 @@ export async function queryFreeBusy({ accessToken, calendarId, timeMin, timeMax,
   });
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new CalendarError(`freeBusy.query failed: ${res.status} ${text}`);
+    // El cuerpo nunca entra al mensaje: puede arrastrar el calendar_id
+    // consultado y termina en los logs del Worker.
+    throw new CalendarError(describeGoogleFailure('calendar.freeBusy', res.status, await res.text()));
   }
 
   const data = await res.json();
@@ -93,8 +96,7 @@ export async function createBookingEvent({
   }
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new CalendarError(`events.insert failed: ${res.status} ${text}`);
+    throw new CalendarError(describeGoogleFailure('calendar.events.insert', res.status, await res.text()));
   }
 
   const created = await res.json();
@@ -111,8 +113,7 @@ export async function getExistingBookingEvent({ accessToken, calendarId, eventId
 
   if (res.status === 404) return null;
   if (!res.ok) {
-    const text = await res.text();
-    throw new CalendarError(`events.get failed: ${res.status} ${text}`);
+    throw new CalendarError(describeGoogleFailure('calendar.events.get', res.status, await res.text()));
   }
   return res.json();
 }

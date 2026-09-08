@@ -2,6 +2,8 @@
 // (eso es solo para cuentas de servicio, que este proyecto no usa). El
 // refresh_token se obtuvo una sola vez con scripts/oauth-setup.mjs y se
 // intercambia aquí por un access_token de corta duración en cada request.
+import { describeGoogleFailure } from './google-error.js';
+
 export async function refreshAccessToken({ clientId, clientSecret, refreshToken, fetchImpl = fetch }) {
   const res = await fetchImpl('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -15,8 +17,9 @@ export async function refreshAccessToken({ clientId, clientSecret, refreshToken,
   });
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`OAuth refresh failed: ${res.status} ${text}`);
+    // El cuerpo se lee para extraer un código normalizado y luego se descarta:
+    // no entra al mensaje, que puede terminar en los logs del Worker.
+    throw new Error(describeGoogleFailure('oauth.refresh', res.status, await res.text()));
   }
 
   const data = await res.json();

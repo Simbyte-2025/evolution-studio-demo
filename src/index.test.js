@@ -47,3 +47,51 @@ test('POST /api/bookings with invalid input responds 400 without touching Google
   );
   assert.equal(res.status, 400);
 });
+
+// ── La respuesta pública nunca arrastra datos de Google ─────────────────
+// index.js no propaga fetchImpl a los endpoints, así que la única forma de
+// interceptar la llamada sin salir a la red es sustituir el fetch global.
+test('a Google failure never leaks its response body through the public API', async () => {
+  const sufijoCal = '@' + ['group', 'calendar', 'google', 'com'].join('.');
+  const FUGA = {
+    calendarId: 'ca11ab1e'.repeat(8) + sufijoCal,
+    refreshToken: ['1', '//', '0', 'FIXTURE', 'a'.repeat(24)].join(''),
+    correo: ['persona', 'ficticia'].join('.') + '@' + ['example', 'com'].join('.'),
+  };
+
+  const fetchReal = globalThis.fetch;
+  let llamadasDeRed = 0;
+  globalThis.fetch = async () => {
+    llamadasDeRed += 1;
+    return {
+      ok: false,
+      status: 403,
+      json: async () => ({}),
+      text: async () =>
+        JSON.stringify({
+          error: {
+            code: 403,
+            message: `Forbidden for ${FUGA.calendarId} / ${FUGA.correo}`,
+            errors: [{ reason: 'forbidden', message: FUGA.refreshToken }],
+          },
+        }),
+    };
+  };
+
+  try {
+    const worker = (await import('./index.js')).default;
+    const url = 'https://demo.test/api/availability?serviceId=8&barberId=1&date=2026-09-22';
+    const res = await worker.fetch(new Request(url), FAKE_ENV);
+    const body = await res.text();
+
+    // Si esto fuera 0, el mock no se usó y el test no probaría nada.
+    assert.ok(llamadasDeRed > 0, 'el fetch simulado nunca se invocó');
+    assert.ok(res.status >= 400);
+    for (const [nombre, valor] of Object.entries(FUGA)) {
+      assert.ok(!body.includes(valor), `la respuesta pública filtró ${nombre}`);
+    }
+    assert.ok(!body.includes('Forbidden for'));
+  } finally {
+    globalThis.fetch = fetchReal;
+  }
+});
