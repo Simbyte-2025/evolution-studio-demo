@@ -30,11 +30,26 @@
   // Worker no tiene ningún ingreso público.
   "workers_dev": false,
   "preview_urls": false,
-  // Secretos esperados en runtime — SOLO nombres, nunca valores acá. Se
-  // cargan con `wrangler versions upload --secrets-file`, no con
-  // `wrangler secret put` (ese comando crea una versión y la despliega de
-  // inmediato). Declararlos hace que `versions upload` falle con un error
-  // claro si falta alguno, en vez de publicar una versión incompleta.
+  // Secretos esperados en runtime — SOLO nombres, nunca valores acá.
+  //
+  // Los ocho se cargan JUNTOS, en una sola operación. La primera vez, cuando
+  // el Worker todavía no existe en remoto, se crea con:
+  //
+  //   npx wrangler deploy --secrets-file <archivo-temporal> --strict
+  //
+  // Cloudflare no crea un Worker a partir de una versión, así que
+  // `versions upload` no sirve para la creación inicial: falla si el Worker
+  // no existe. Una vez creado, las versiones POSTERIORES se suben sin
+  // activarlas con:
+  //
+  //   npx wrangler versions upload --secrets-file <archivo-temporal> --strict
+  //
+  // Nunca con el subcomando `secret put`: ese crea una versión y la despliega
+  // de inmediato, así que ocho llamadas producirían ocho despliegues, siete
+  // de ellos con secretos incompletos.
+  //
+  // Declarar los nombres acá hace que el comando falle con la lista de los
+  // que falten, en vez de subir una versión incompleta.
   "secrets": {
     "required": [
       "GOOGLE_CLIENT_ID",

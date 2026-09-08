@@ -205,11 +205,36 @@ class SecretLoadingDocsTests(unittest.TestCase):
                 with self.subTest(doc=relative, command=command):
                     self.assertNotIn(command, text)
 
-    def test_the_docs_point_at_the_single_undeployed_version_flow(self):
+    def test_the_docs_document_the_initial_creation_with_deploy(self):
+        """El primer Worker se crea con `deploy`, no subiendo una versión.
+
+        Cloudflare no crea un Worker a partir de una versión: `versions
+        upload` falla si el Worker no existe todavía. Documentar el flujo al
+        revés hace perder el primer intento de despliegue, que es justo el
+        momento en que los ocho secretos reales están sobre la mesa.
+        """
+        for relative in self.DOCS:
+            text = ROOT.joinpath(relative).read_text()
+            with self.subTest(doc=relative):
+                self.assertIn("wrangler deploy --secrets-file", text)
+
+    def test_the_docs_keep_versions_upload_only_as_the_later_flow(self):
+        """`versions upload` sigue documentado, pero para versiones posteriores.
+
+        No basta con que la cadena aparezca: tiene que aparecer descrita como
+        el flujo POSTERIOR. Si el documento no menciona en ninguna parte que
+        el Worker ya debe existir, el lector puede volver a tomarla como el
+        comando de creación inicial.
+        """
         for relative in self.DOCS:
             text = ROOT.joinpath(relative).read_text()
             with self.subTest(doc=relative):
                 self.assertIn("wrangler versions upload --secrets-file", text)
+                self.assertRegex(
+                    text,
+                    r"(?is)(posterior|ya existe|una vez)",
+                    msg="versions upload debe presentarse como el flujo posterior",
+                )
 
 
 if __name__ == "__main__":
