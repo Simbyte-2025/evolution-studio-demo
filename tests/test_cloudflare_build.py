@@ -91,6 +91,10 @@ class SourceSeparationTests(unittest.TestCase):
                 self.assertIn(pipeline, header)
 
     def test_real_source_keeps_the_approved_visual_structure(self):
+        # Si este test falla comparando los <style>, es porque el CSS cambió en
+        # una sola de las dos fuentes: aplica el mismo cambio en index.html y
+        # en index.real.html. Es la única salvaguarda contra que las dos
+        # versiones del flujo se separen visualmente.
         self.assertEqual(style_blocks(SIMULATED), style_blocks(REAL))
         # Dirección deliberada: subconjunto, no igualdad. Nada de lo aprobado
         # puede desaparecer; el flujo real sí puede sumar estados de carga y

@@ -1418,7 +1418,6 @@ function reiniciarDemo() {
 function xe(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
 function xa(s){ return String(s??'').replace(/"/g,'&quot;') }
 function pad(n){ return String(n).padStart(2,'0') }
-function slotMinutes(h){ const [hour,minute] = h.split(':').map(Number); return hour * 60 + minute }
 function formatDate(key){
   const value = keyToUtcDate(key).toLocaleDateString('es-CL', {timeZone:'UTC',weekday:'long',day:'numeric',month:'long'});
   return value.charAt(0).toUpperCase() + value.slice(1);
