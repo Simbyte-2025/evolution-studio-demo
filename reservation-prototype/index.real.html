@@ -1338,8 +1338,10 @@ async function confirmar() {
       state.hora = null;
       state.idempotencyKey = null;
       ir(3);
+      // El aviso va DESPUÉS de recargar los horarios: selFecha() termina con
+      // clearFlowMessage() y borraría el mensaje si se mostrara antes.
+      await selFecha(fecha);
       showFlowMessage(MENSAJES_ERROR.SLOT_UNAVAILABLE, '#calWrap');
-      selFecha(fecha);
       return;
     }
     errEl.textContent = MENSAJES_ERROR[data.error] || 'No pudimos confirmar tu reserva. Inténtalo nuevamente en unos minutos.';
