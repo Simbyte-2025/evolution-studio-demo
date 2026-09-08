@@ -77,52 +77,74 @@ function base64url(buffer) {
 
 // ── Flujo interactivo ───────────────────────────────────────────────────
 
-function waitForAuthorizationCode(expectedState) {
-  return new Promise((fulfil, reject) => {
-    const server = createServer((req, res) => {
-      const url = new URL(req.url, `http://127.0.0.1:${CALLBACK_PORT}`);
-      if (url.pathname !== '/callback') {
-        res.writeHead(404).end();
-        return;
-      }
+export class OAuthCallbackError extends Error {}
 
-      const respond = (message) => {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(`<!DOCTYPE html><meta charset="utf-8"><body style="font-family:system-ui;padding:40px">
-          <p>${message}</p><p>Puedes cerrar esta pestaña y volver a la terminal.</p></body>`);
-      };
+// Valida la respuesta de Google ANTES de que exista cualquier intercambio de
+// código. Cualquier salida por excepción implica que no se pide token y que
+// no se escribe nada en .dev.vars.
+export function extractAuthorizationCode(searchParams, expectedState) {
+  const error = searchParams.get('error');
+  if (error) {
+    throw new OAuthCallbackError(`Google devolvió un error de autorización: ${error}`);
+  }
 
-      const error = url.searchParams.get('error');
-      if (error) {
-        respond('Autorización cancelada.');
-        server.close();
-        reject(new Error(`Google devolvió un error de autorización: ${error}`));
-        return;
-      }
+  // `state` protege contra que un tercero induzca al navegador a entregar en
+  // este callback un código que no corresponde a esta autorización. Ausente
+  // cuenta como no coincidente: `null !== expectedState`.
+  const state = searchParams.get('state');
+  if (!state || !expectedState || state !== expectedState) {
+    throw new OAuthCallbackError(
+      'El parámetro `state` falta o no coincide: se aborta sin intercambiar el código.'
+    );
+  }
 
-      if (url.searchParams.get('state') !== expectedState) {
-        respond('Estado inválido.');
-        server.close();
-        reject(new Error('El parámetro `state` no coincide: se aborta por seguridad.'));
-        return;
-      }
+  const code = searchParams.get('code');
+  if (!code) {
+    throw new OAuthCallbackError('Google no devolvió el parámetro `code`.');
+  }
 
-      const code = url.searchParams.get('code');
-      if (!code) {
-        respond('Falta el código de autorización.');
-        server.close();
-        reject(new Error('Google no devolvió el parámetro `code`.'));
-        return;
-      }
+  return code;
+}
 
-      respond('Autorización recibida.');
-      server.close();
-      fulfil(code);
-    });
-
-    server.on('error', reject);
-    server.listen(CALLBACK_PORT, '127.0.0.1');
+// Escucha exclusivamente en 127.0.0.1 (nunca en 0.0.0.0) y se cierra tanto al
+// completar como al rechazar definitivamente el flujo.
+export function startCallbackServer(expectedState, { port = CALLBACK_PORT } = {}) {
+  let settle;
+  const code = new Promise((fulfil, reject) => {
+    settle = { fulfil, reject };
   });
+
+  const respond = (res, message) => {
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(`<!DOCTYPE html><meta charset="utf-8"><body style="font-family:system-ui;padding:40px">
+      <p>${message}</p><p>Puedes cerrar esta pestaña y volver a la terminal.</p></body>`);
+  };
+
+  const server = createServer((req, res) => {
+    const url = new URL(req.url, 'http://127.0.0.1');
+    if (url.pathname !== '/callback') {
+      res.writeHead(404).end();
+      return;
+    }
+
+    try {
+      const authorizationCode = extractAuthorizationCode(url.searchParams, expectedState);
+      respond(res, 'Autorización recibida.');
+      server.close();
+      settle.fulfil(authorizationCode);
+    } catch (err) {
+      respond(res, 'Solicitud rechazada.');
+      server.close();
+      settle.reject(err);
+    }
+  });
+
+  const ready = new Promise((fulfil, reject) => {
+    server.once('error', reject);
+    server.listen(port, '127.0.0.1', () => fulfil(server.address()));
+  });
+
+  return { ready, code, close: () => server.close() };
 }
 
 function openInBrowser(url) {
@@ -183,7 +205,8 @@ async function main() {
   const state = base64url(randomBytes(16));
 
   const authUrl = buildAuthUrl({ clientId, redirectUri: REDIRECT_URI, codeChallenge, state });
-  const pending = waitForAuthorizationCode(state);
+  const { ready, code: pending } = startCallbackServer(state);
+  await ready;
 
   console.log('\nAbriendo el navegador para autorizar el acceso a Google Calendar.');
   console.log('Inicia sesión con la cuenta ORGANIZADORA (agenda.evolution.demo@gmail.com).\n');

@@ -1,6 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildAuthUrl, upsertDevVar, CALENDAR_SCOPE } from './oauth-setup.mjs';
+import {
+  buildAuthUrl,
+  upsertDevVar,
+  extractAuthorizationCode,
+  startCallbackServer,
+  OAuthCallbackError,
+  CALENDAR_SCOPE,
+} from './oauth-setup.mjs';
 
 test('the authorization URL asks for the parameters Google needs to return a refresh token', () => {
   const url = new URL(
@@ -65,4 +72,89 @@ test('upsertDevVar does not confuse a variable with another one sharing its pref
 
   assert.match(after, /^BARBER_A_CALENDAR_ID=tres$/m);
   assert.match(after, /^BARBER_A_CALENDAR_ID_OLD=dos$/m);
+});
+
+// ── Protección CSRF por `state` ────────────────────────────────────────
+// Sin esta verificación, un tercero podría inducir al navegador a entregar
+// en este callback un código de autorización que no corresponde a esta
+// sesión. Cualquier rechazo debe ocurrir ANTES de intercambiar el código.
+
+test('extractAuthorizationCode rejects a callback whose state does not match', () => {
+  const params = new URLSearchParams({ code: 'codigo-de-google', state: 'state-de-un-atacante' });
+
+  assert.throws(
+    () => extractAuthorizationCode(params, 'state-legitimo'),
+    (err) => err instanceof OAuthCallbackError && /state/.test(err.message)
+  );
+});
+
+test('extractAuthorizationCode rejects a callback with no state at all', () => {
+  const params = new URLSearchParams({ code: 'codigo-de-google' });
+
+  assert.throws(
+    () => extractAuthorizationCode(params, 'state-legitimo'),
+    (err) => err instanceof OAuthCallbackError && /state/.test(err.message)
+  );
+});
+
+test('extractAuthorizationCode rejects an empty state even if expectedState were empty', () => {
+  // Defensa contra el caso degenerado '' === '': un state vacío nunca sirve.
+  assert.throws(
+    () => extractAuthorizationCode(new URLSearchParams({ code: 'c', state: '' }), ''),
+    OAuthCallbackError
+  );
+});
+
+test('extractAuthorizationCode rejects an authorization the user cancelled', () => {
+  const params = new URLSearchParams({ error: 'access_denied', state: 'state-legitimo' });
+
+  assert.throws(() => extractAuthorizationCode(params, 'state-legitimo'), OAuthCallbackError);
+});
+
+test('extractAuthorizationCode returns the code when the state matches', () => {
+  const params = new URLSearchParams({ code: 'codigo-de-google', state: 'state-legitimo' });
+
+  assert.equal(extractAuthorizationCode(params, 'state-legitimo'), 'codigo-de-google');
+});
+
+test('the callback server listens only on the loopback interface', async () => {
+  const { ready, code, close } = startCallbackServer('state-legitimo', { port: 0 });
+  const address = await ready;
+
+  assert.equal(address.address, '127.0.0.1');
+
+  code.catch(() => {}); // nadie va a completar el flujo en este test
+  close();
+});
+
+test('a callback with the wrong state is refused and the server shuts down', async () => {
+  const { ready, code } = startCallbackServer('state-legitimo', { port: 0 });
+  const { port } = await ready;
+
+  // El handler se adjunta ANTES de provocar el rechazo: si no, el rechazo
+  // queda momentáneamente sin manejar y el runner lo cuenta como fallo.
+  const expectRejection = assert.rejects(
+    code,
+    (err) => err instanceof OAuthCallbackError && /state/.test(err.message)
+  );
+
+  const res = await fetch(`http://127.0.0.1:${port}/callback?code=robado&state=state-de-un-atacante`);
+  assert.equal(res.status, 200);
+  assert.match(await res.text(), /rechazada/);
+
+  await expectRejection;
+
+  // El servidor debe haberse cerrado: una segunda solicitud no encuentra a
+  // nadie escuchando.
+  await assert.rejects(fetch(`http://127.0.0.1:${port}/callback?code=otro&state=state-legitimo`));
+});
+
+test('a callback with the right state resolves with the code and shuts the server down', async () => {
+  const { ready, code } = startCallbackServer('state-legitimo', { port: 0 });
+  const { port } = await ready;
+
+  await fetch(`http://127.0.0.1:${port}/callback?code=codigo-de-google&state=state-legitimo`);
+
+  assert.equal(await code, 'codigo-de-google');
+  await assert.rejects(fetch(`http://127.0.0.1:${port}/callback?code=otro&state=state-legitimo`));
 });
