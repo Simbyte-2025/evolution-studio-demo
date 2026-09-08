@@ -137,6 +137,20 @@ class WranglerConfigTests(unittest.TestCase):
         overlap = required & set(self.config.get("vars", {}))
         self.assertEqual(overlap, set(), f"declarados dos veces: {overlap}")
 
+    def test_preview_urls_are_explicitly_disabled(self):
+        """Una versión "no desplegada" no debe ser una versión pública.
+
+        `wrangler versions upload` genera una URL de preview por versión. Con
+        workers.dev habilitado en la cuenta y `preview_urls` omitido, Wrangler
+        4.44+ hace que ese valor por defecto SIGA al de workers.dev, es decir,
+        habilitado: la versión quedaría accesible desde Internet, con los ocho
+        secretos reales cargados y conectada a Google Calendar, antes de
+        cualquier despliegue. Se declara explícitamente en false para que eso
+        no dependa de un valor por defecto que ya cambió tres veces.
+        """
+        self.assertIn("preview_urls", self.config, "falta preview_urls en wrangler.jsonc")
+        self.assertIs(self.config["preview_urls"], False)
+
     def test_the_config_carries_no_real_values(self):
         raw = ROOT.joinpath("wrangler.jsonc").read_text()
         for label, pattern in SECRET_SHAPES.items():

@@ -13,6 +13,15 @@
     // (/, /reservar, imágenes) se sirve directo desde Static Assets.
     "run_worker_first": ["/api/*"]
   },
+  // `wrangler versions upload` genera una URL de preview por cada versión.
+  // Con workers.dev habilitado en la cuenta y este campo omitido, Wrangler
+  // 4.44+ hace que el valor por defecto SIGA al de workers.dev — es decir,
+  // habilitado: una versión "no desplegada" quedaría accesible desde
+  // Internet, con los ocho secretos reales cargados y conectada a Google
+  // Calendar, antes de cualquier despliegue. Se declara explícitamente para
+  // que eso no dependa de un valor por defecto que ya cambió tres veces
+  // entre versiones de Wrangler.
+  "preview_urls": false,
   // Secretos esperados en runtime — SOLO nombres, nunca valores acá. Se
   // cargan con `wrangler versions upload --secrets-file`, no con
   // `wrangler secret put` (ese comando crea una versión y la despliega de
