@@ -5,14 +5,25 @@
 # versiona, y ningún valor real debe volver a este archivo de ejemplo.
 #
 # En Cloudflare, cuando esté autorizado, los OCHO secretos se cargan JUNTOS
-# en una sola ejecución controlada:
+# en una sola ejecución controlada. La PRIMERA vez, el Worker todavía no
+# existe en remoto y se crea con:
+#
+#   npx wrangler deploy --secrets-file <archivo-temporal> --strict
+#
+# `wrangler deploy` es el único comando que crea el Worker inicial: subir una
+# versión sobre un Worker inexistente no lo crea. Ese primer deployment es
+# administrativo y NO abre acceso público: workers_dev: false, preview_urls:
+# false y la ausencia de rutas hacen que no exista ninguna URL de ingreso.
+#
+# Una vez que el Worker YA existe, las versiones siguientes se suben sin
+# desplegar con:
 #
 #   npx wrangler versions upload --secrets-file <archivo-temporal> --strict
 #
-# Eso crea una única versión que todavía no recibe tráfico. Cargarlos uno por
-# uno con el subcomando `secret put` sería un error: ese comando crea una
-# versión y la despliega de inmediato, así que ocho llamadas producirían ocho
-# despliegues, siete de ellos en producción con secretos incompletos.
+# Cargar los secretos uno por uno con el subcomando `secret put` sería un
+# error: ese comando crea una versión y la despliega de inmediato, así que
+# ocho llamadas producirían ocho despliegues, siete de ellos con secretos
+# incompletos.
 #
 # Este archivo (y su copia .dev.vars) NO se usa como archivo de carga: además
 # de los ocho secretos contiene MIN_ADVANCE_MIN, que ya es una var pública

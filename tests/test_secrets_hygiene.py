@@ -151,6 +151,28 @@ class WranglerConfigTests(unittest.TestCase):
         self.assertIn("preview_urls", self.config, "falta preview_urls en wrangler.jsonc")
         self.assertIs(self.config["preview_urls"], False)
 
+    def test_workers_dev_is_explicitly_disabled(self):
+        """El Worker no debe tener una URL pública en workers.dev.
+
+        Omitir el campo deja la puerta abierta: si el subdominio workers.dev
+        está habilitado en la cuenta, el primer `deploy` publica
+        `<worker>.<subdominio>.workers.dev` — accesible desde Internet, con
+        los ocho secretos reales cargados y conectado a Google Calendar. El
+        primer deployment es administrativo: crea el Worker, no una puerta de
+        entrada. Se declara explícitamente en false.
+
+        La comprobación es estricta a propósito, igual que la de
+        preview_urls: 0, null, "" o la ausencia de la clave no deben pasar.
+        """
+        self.assertIn("workers_dev", self.config, "falta workers_dev en wrangler.jsonc")
+        self.assertIs(self.config["workers_dev"], False)
+
+    def test_no_public_ingress_is_configured(self):
+        """Sin rutas ni dominios, el Worker no recibe tráfico de usuarios."""
+        for campo in ("routes", "route", "custom_domains"):
+            with self.subTest(campo=campo):
+                self.assertNotIn(campo, self.config)
+
     def test_the_config_carries_no_real_values(self):
         raw = ROOT.joinpath("wrangler.jsonc").read_text()
         for label, pattern in SECRET_SHAPES.items():

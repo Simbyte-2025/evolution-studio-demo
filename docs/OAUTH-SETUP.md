@@ -115,9 +115,11 @@ despliega de inmediato**. Cargar los ocho secretos así produciría ocho
 versiones y ocho despliegues, y los siete primeros quedarían sirviendo
 tráfico con secretos incompletos — es decir, rotos.
 
-Los ocho se cargan **juntos, en una sola versión que no recibe tráfico**.
+Los ocho se cargan **juntos, en una sola operación**, y el resultado no
+recibe tráfico de usuarios: el bloqueo lo dan `workers_dev: false`,
+`preview_urls: false` y la ausencia de rutas, no la falta de deployment.
 
-### Preview URLs deshabilitadas
+### Sin ingreso público: `workers_dev` y `preview_urls` en false
 
 `wrangler.jsonc` declara `"preview_urls": false`. Sin eso, `versions upload`
 genera una URL de preview **pública** por cada versión: con `workers.dev`
@@ -125,6 +127,12 @@ habilitado en la cuenta y el campo omitido, Wrangler 4.44+ hace que ese
 valor por defecto siga al de `workers.dev`. La versión quedaría accesible
 desde Internet con los ocho secretos cargados y conectada a Google Calendar,
 antes de cualquier despliegue. "No desplegada" no equivale a "no accesible".
+
+`wrangler.jsonc` declara además `"workers_dev": false`. Sin ese campo, el
+primer `deploy` publica el Worker en `<worker>.<subdominio>.workers.dev` si
+la cuenta tiene el subdominio habilitado. Con ambos campos en `false` y sin
+rutas ni dominios personalizados, el Worker **no tiene ninguna URL de
+ingreso**: existe en Cloudflare, pero no recibe tráfico de usuarios.
 
 ### Flujo autorizado
 
@@ -153,20 +161,37 @@ antes de cualquier despliegue. "No desplegada" no equivale a "no accesible".
    `BUSINESS_TIMEZONE` también es una var pública de `wrangler.jsonc`, pero
    no es una clave de `.dev.vars`.
 
-3. **Crear una única versión no desplegada:**
+3. **Crear el Worker remoto, la primera vez:**
 
    ```bash
    npm run build:cloudflare
-   npx wrangler versions upload --secrets-file <archivo-temporal> --strict
+   npx wrangler deploy --secrets-file <archivo-temporal> --strict
    ```
 
    `--strict` aborta la subida si hay cambios remotos en conflicto, en vez
    de sobrescribirlos en silencio.
 
-   La primera vez esto **crea el Worker remoto**, que hasta entonces no
-   existe. Crea la versión, pero **no** la despliega ni le envía tráfico.
+   **Por qué `deploy` y no `versions upload`.** Cloudflare no crea un Worker
+   a partir de una versión: `versions upload` requiere que el Worker ya
+   exista y falla si no está. El primer Worker se crea únicamente con
+   `wrangler deploy`, que sube el código y los ocho secretos en una sola
+   operación y deja una primera versión activa.
+
+   Ese primer deployment es **administrativo**: crea el Worker y su versión,
+   pero como `workers_dev` y `preview_urls` están en `false` y no hay rutas
+   ni dominios, **no existe ingreso público ni tráfico de usuarios**. La
+   expresión correcta no es "sin deployment" — Cloudflare exige uno para
+   crear el Worker — sino "sin acceso público".
+
    `secrets.required` en `wrangler.jsonc` hace que el comando falle con la
    lista de los que falten, en vez de subir una versión incompleta.
+
+   **Versiones posteriores**, con el Worker ya existente, se suben sin
+   activarlas:
+
+   ```bash
+   npx wrangler versions upload --secrets-file <archivo-temporal> --strict
+   ```
 
 4. **Inspección read-only**, antes de decidir nada:
 
@@ -176,21 +201,28 @@ antes de cualquier despliegue. "No desplegada" no equivale a "no accesible".
    npx wrangler versions view <VERSION-ID> --json
    ```
 
-   Comprobar: una sola versión; ningún deployment activo; los ocho secretos
-   presentes **por nombre** (tipo `secret_text`, sin valores); los bindings
-   `ASSETS`, `BUSINESS_TIMEZONE` y `MIN_ADVANCE_MIN`; cero rutas
-   personalizadas; DNS y Sites sin cambios.
+   Comprobar: una sola versión; un único deployment, el administrativo que
+   creó el Worker (100% de tráfico sobre esa versión es lo esperado, y no
+   implica acceso público); los ocho secretos presentes **por nombre** (tipo
+   `secret_text`, sin valores); los bindings `ASSETS`, `BUSINESS_TIMEZONE` y
+   `MIN_ADVANCE_MIN`; cero rutas personalizadas; sin URL de workers.dev ni
+   Preview URL; DNS y Sites sin cambios.
 
 5. **Borrar el archivo temporal**, solo después de confirmar que la versión
    quedó con los ocho secretos. Se regenera desde `.dev.vars` si hace falta.
 
-6. **Desplegar — requiere autorización explícita e independiente:**
+6. **Activar una versión posterior — requiere autorización explícita e
+   independiente:**
 
    ```bash
    npx wrangler versions deploy <VERSION-ID>
    ```
 
-   Este es el único paso que activa tráfico. No forma parte del anterior.
+   Promueve una versión ya subida. No forma parte del paso anterior.
+
+7. **Abrir acceso público — autorización explícita e independiente.** No
+   ocurre por desplegar una versión: exige además una ruta o un dominio
+   personalizado, decisión que se toma aparte y no está cubierta acá.
 
 `BUSINESS_TIMEZONE` y `MIN_ADVANCE_MIN` no son secretos: son vars públicas y
 ya están declaradas en `wrangler.jsonc`.
