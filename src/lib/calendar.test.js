@@ -86,6 +86,64 @@ test('queryFreeBusy throws a CalendarError when the request fails', async () => 
   );
 });
 
+test('queryFreeBusy rejects per-calendar errors returned inside an HTTP 200 response', async () => {
+  const { fetchImpl } = makeFetchMock([
+    {
+      ok: true,
+      status: 200,
+      body: {
+        calendars: {
+          'calendar-a@group.calendar.google.com': {
+            errors: [
+              {
+                reason: 'notFound',
+                message: 'detalle externo que no debe llegar a la excepción',
+              },
+            ],
+          },
+        },
+      },
+    },
+  ]);
+
+  await assert.rejects(
+    () =>
+      queryFreeBusy({
+        accessToken: 'fake-token',
+        calendarId: 'calendar-a@group.calendar.google.com',
+        timeMin: '2026-09-08T00:00:00Z',
+        timeMax: '2026-09-09T00:00:00Z',
+        fetchImpl,
+      }),
+    (err) => {
+      assert.ok(err instanceof CalendarError);
+      assert.match(err.message, /calendar\.freeBusy failed: HTTP 200 \(notFound\)/);
+      assert.doesNotMatch(err.message, /detalle externo/);
+      return true;
+    }
+  );
+});
+
+test('queryFreeBusy rejects an HTTP 200 response missing the requested calendar entry', async () => {
+  const { fetchImpl } = makeFetchMock([
+    { ok: true, status: 200, body: { calendars: {} } },
+  ]);
+
+  await assert.rejects(
+    () =>
+      queryFreeBusy({
+        accessToken: 'fake-token',
+        calendarId: 'calendar-a@group.calendar.google.com',
+        timeMin: '2026-09-08T00:00:00Z',
+        timeMax: '2026-09-09T00:00:00Z',
+        fetchImpl,
+      }),
+    (err) =>
+      err instanceof CalendarError &&
+      /calendar\.freeBusy failed: HTTP 200 \(missingCalendar\)/.test(err.message)
+  );
+});
+
 test('createBookingEvent creates the event with attendees, sendUpdates=all as query param, and opaque transparency', async () => {
   const { fetchImpl, calls } = makeFetchMock([
     { ok: true, status: 200, body: { id: 'evt123', htmlLink: 'https://calendar.google.com/evt123' } },

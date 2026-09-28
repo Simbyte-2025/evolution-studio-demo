@@ -47,7 +47,32 @@ export async function queryFreeBusy({ accessToken, calendarId, timeMin, timeMax,
   }
 
   const data = await res.json();
-  const busy = data.calendars?.[calendarId]?.busy ?? [];
+  const calendar = data.calendars?.[calendarId];
+  if (!calendar) {
+    throw new CalendarError(
+      describeGoogleFailure(
+        'calendar.freeBusy',
+        res.status,
+        JSON.stringify({ error: { status: 'missingCalendar' } })
+      )
+    );
+  }
+
+  if (Array.isArray(calendar.errors) && calendar.errors.length > 0) {
+    // freeBusy puede responder HTTP 200 y reportar el fallo dentro del
+    // calendario solicitado. describeGoogleFailure conserva solamente un
+    // `reason` normalizado; el mensaje libre y el Calendar ID no llegan a
+    // la excepción ni a los logs del Worker.
+    throw new CalendarError(
+      describeGoogleFailure(
+        'calendar.freeBusy',
+        res.status,
+        JSON.stringify({ error: { errors: calendar.errors } })
+      )
+    );
+  }
+
+  const busy = calendar.busy ?? [];
   return busy.map((b) => ({ start: new Date(b.start), end: new Date(b.end) }));
 }
 

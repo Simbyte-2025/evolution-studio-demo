@@ -85,6 +85,35 @@ test('createBooking responds 409 SLOT_UNAVAILABLE when freeBusy reports an overl
   );
 });
 
+test('createBooking rejects a per-calendar freeBusy error without calling events.insert', async () => {
+  const { fetchImpl, calls } = makeFetchMock([
+    ['oauth2.googleapis.com/token', () => jsonResponse(200, { access_token: 'tok', expires_in: 3599 })],
+    ['/events/', () => jsonResponse(404, { error: 'not found' })],
+    [
+      'freeBusy',
+      () =>
+        jsonResponse(200, {
+          calendars: {
+            'calendar-a@group.calendar.google.com': {
+              errors: [{ reason: 'notFound', message: 'calendar inaccessible' }],
+            },
+          },
+        }),
+    ],
+    ['/events?sendUpdates=all', () => jsonResponse(200, { id: 'must-not-be-created' })],
+  ]);
+
+  await assert.rejects(
+    () => createBooking({ input: VALID_INPUT, env: FAKE_ENV, fetchImpl }),
+    /calendar\.freeBusy failed/
+  );
+  assert.equal(
+    calls.filter((call) => call.url.includes('/events?sendUpdates=all')).length,
+    0,
+    'events.insert no debe ejecutarse si freeBusy reporta un error del calendario'
+  );
+});
+
 test('createBooking does not confirm the reservation when events.insert fails', async () => {
   const { fetchImpl } = makeFetchMock([
     ['oauth2.googleapis.com/token', () => jsonResponse(200, { access_token: 'tok', expires_in: 3599 })],

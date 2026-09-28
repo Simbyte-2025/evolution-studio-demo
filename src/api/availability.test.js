@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { computeAvailabilityForRequest } from './availability.js';
 import { ApiError } from '../lib/errors.js';
+import { CalendarError } from '../lib/calendar.js';
 
 const FAKE_ENV = {
   GOOGLE_CLIENT_ID: 'fake-client-id',
@@ -38,6 +39,36 @@ test('computeAvailabilityForRequest returns slots for an active service/barber w
 
   assert.equal(result.timezone, 'America/Santiago');
   assert.ok(result.slots.includes('15:00'));
+});
+
+test('computeAvailabilityForRequest rejects a per-calendar freeBusy error instead of returning slots', async () => {
+  const fetchImpl = makeFetchMock({
+    'oauth2.googleapis.com/token': { ok: true, status: 200, body: { access_token: 'tok', expires_in: 3599 } },
+    'freeBusy': {
+      ok: true,
+      status: 200,
+      body: {
+        calendars: {
+          'calendar-a@group.calendar.google.com': {
+            errors: [{ reason: 'notFound', message: 'calendar inaccessible' }],
+          },
+        },
+      },
+    },
+  });
+
+  await assert.rejects(
+    () =>
+      computeAvailabilityForRequest({
+        serviceId: '8',
+        barberId: '1',
+        date: '2026-09-08',
+        env: FAKE_ENV,
+        now: new Date('2000-01-01T00:00:00Z'),
+        fetchImpl,
+      }),
+    CalendarError
+  );
 });
 
 test('computeAvailabilityForRequest rejects an inactive/unknown barberId', async () => {
