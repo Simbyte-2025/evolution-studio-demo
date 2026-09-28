@@ -4,6 +4,9 @@ Repositorio de la demo comercial mobile-first y del MVP de reservas de
 **Evolution Studio**. Los datos de servicios, precios, barberos y horarios
 siguen siendo fixtures DEMO hasta que el negocio los confirme.
 
+Para retomar el trabajo desde otro agente o sesión, leer primero
+[`docs/HANDOFF-PROPUESTA-1.md`](docs/HANDOFF-PROPUESTA-1.md).
+
 ## Dos flujos separados
 
 El repositorio conserva dos pipelines deliberadamente independientes:

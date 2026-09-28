@@ -1,5 +1,11 @@
 # AGENTS.md — Evolution Studio / Simbyte
 
+## Primer paso obligatorio
+
+Antes de analizar o modificar este repositorio, leer
+`docs/HANDOFF-PROPUESTA-1.md`. Ese documento contiene el checkpoint vigente,
+los estados que deben revalidarse y las acciones que requieren autorización.
+
 ## Objetivo
 
 Mantener la demo comercial mobile-first y el MVP real de la **Propuesta 1**:
