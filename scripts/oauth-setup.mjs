@@ -1,5 +1,5 @@
 // Utilidad LOCAL y de UN SOLO USO para obtener el refresh_token de la cuenta
-// organizadora (agenda.evolution.demo@gmail.com).
+// organizadora (cannibalchild.uk@gmail.com).
 //
 // Deliberadamente NO existe una ruta pública /api/oauth/callback ni un botón
 // "Conectar con Google" en la landing: la autorización la hace una persona
@@ -224,7 +224,7 @@ async function main() {
   await ready;
 
   console.log('\nAbriendo el navegador para autorizar el acceso a Google Calendar.');
-  console.log('Inicia sesión con la cuenta ORGANIZADORA (agenda.evolution.demo@gmail.com).\n');
+  console.log('Inicia sesión con la cuenta ORGANIZADORA (cannibalchild.uk@gmail.com).\n');
   if (!openInBrowser(authUrl)) {
     console.log('No pude abrir el navegador. Abre este enlace manualmente:\n');
     console.log(authUrl, '\n');

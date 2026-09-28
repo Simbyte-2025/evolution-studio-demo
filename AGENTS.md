@@ -2,16 +2,31 @@
 
 ## Objetivo
 
-Trabajar sobre esta landing como **demo comercial mobile-first** para Evolution Studio, evolucionando hacia la **Propuesta 1**: un flujo de reserva propio, respaldado por un backend mínimo (Cloudflare Pages Functions) que registra la cita en Google Calendar, la respalda en Google Sheets y notifica al dueño. El contexto técnico completo vive en `docs/CONTEXTO_CLAUDE_CODE_PROPUESTA_1_EVOLUTION.md`; para el alcance definido ahí ya no aplica la restricción histórica de "no construir el sistema de agendamiento".
+Mantener la demo comercial mobile-first y el MVP real de la **Propuesta 1**:
+un flujo propio que consulta disponibilidad y crea citas en Google Calendar.
+La viabilidad básica ya fue validada en local; eso no equivale a publicación
+remota ni aprobación comercial del negocio.
 
-## Enfoque técnico
+## Enfoque técnico vigente
 
-- Mantener el frontend deliberadamente simple: HTML/CSS/JS actual, sin migrar a React, Vite, Next.js u otro framework salvo necesidad demostrable y aprobada.
-- Para la Propuesta 1 se permite un backend mínimo bajo Cloudflare Pages Functions (`functions/`), con integración a Google Calendar y Google Sheets vía sus APIs oficiales. Fuera de ese alcance —dashboard, login, CRM, WhatsApp API, pagos— sigue sin autorizarse (ver exclusiones en `docs/CONTEXTO_CLAUDE_CODE_PROPUESTA_1_EVOLUTION.md`).
-- Los secretos (credenciales de la cuenta de servicio de Google, tokens, direcciones de notificación) se manejan únicamente mediante variables de entorno / secretos de Cloudflare. Nunca en el repositorio, en el frontend ni en logs.
-- Trabajar primero sobre `index.html` y reutilizar `support.js` / `image-slot.js` mientras sigan siendo necesarios.
-- `reference/original-export/` es solo respaldo: no modificarlo.
-- Usar `assets/reference/` como material de referencia; no asumir que una captura de Instagram es un asset final de producción.
+- Mantener HTML/CSS/JS sin migrar a otro framework salvo necesidad
+  demostrable y aprobada.
+- El backend vigente es un **Cloudflare Worker con Static Assets** definido en
+  `wrangler.jsonc`; no Pages Functions.
+- La integración usa OAuth 2.0 de escritorio con una cuenta Gmail
+  organizadora; no cuenta de servicio ni delegación de Workspace.
+- Google Calendar es el único registro operativo del piloto. Google Sheets,
+  Email Service, dashboard, login, CRM, WhatsApp API y pagos están fuera de
+  este MVP hasta una nueva decisión.
+- `index.html` y `reservation-prototype/index.html` pertenecen al pipeline
+  simulado de Sites. `reservation-prototype/index.real.html` pertenece al
+  Worker real. No cruzar sus fuentes ni conectar Sites a `/api/*`.
+- Los secretos viven únicamente en `.dev.vars` y en bindings secretos de
+  Cloudflare. Nunca en el repositorio, frontend, documentación o logs.
+- `reference/original-export/` es respaldo: no modificarlo.
+- `docs/CONTEXTO_CLAUDE_CODE_PROPUESTA_1_EVOLUTION.md` conserva el diseño
+  inicial como antecedente; sus componentes no implementados no son una
+  instrucción para ampliar el MVP.
 
 ## Hechos confirmados por material entregado
 
@@ -39,23 +54,35 @@ El export actual contiene textos de servicios, promociones, reseñas de ejemplo,
 
 ## Validación
 
-Servidor local:
+Demo simulada:
 
 ```bash
 python3 -m http.server 4173
 ```
 
-Antes de cerrar cambios visuales:
+MVP real:
+
+```bash
+npm run build:cloudflare
+npx wrangler dev --local --ip 127.0.0.1 --port 8799
+```
+
+Antes de cerrar cambios:
 
 1. comprobar que la página carga sin errores visibles;
 2. revisar 375, 390, 430 y 768 px;
 3. comprobar que el CTA de reserva usa `/reservar` como flujo propio, sin apuntar a Vortexa;
 4. comprobar que Instagram conserva `@evolution_barbercut`;
 5. confirmar que no aparezcan datos no verificados como si fueran reales;
-6. confirmar que ninguna credencial, token o secreto aparece en el repositorio, el frontend o los logs.
+6. ejecutar `npm test` y `npm run test:node`;
+7. ejecutar el build y `npx wrangler deploy --dry-run`;
+8. confirmar que ninguna credencial, token ni Calendar ID aparece en archivos versionados, frontend o logs;
+9. no crear una reserva real durante un preflight: el envío persiste en Calendar y puede notificar invitados.
 
 ## Git
 
 - Hacer cambios pequeños y revisables.
 - No borrar el export original.
 - Evitar refactors ajenos a la demo o a la Propuesta 1.
+- Mantener `main`, Sites, Cloudflare y DNS separados de una validación local.
+- La bitácora vive solo en `local/bitacora-propuesta-1`; no publicarla ni incorporarla a la rama de producto.

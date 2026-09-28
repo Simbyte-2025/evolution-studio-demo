@@ -7,6 +7,14 @@
 
 > **Corrección aplicada — 4 de septiembre de 2026 (tarde):** la sección 2 de la versión original de este documento reintroducía un dato ya corregido por la entrevista de descubrimiento del 31-08-2026 ("la información llega al WhatsApp del negocio"). Se corrige aquí para alinear este documento con el informe consolidado de Notion. Ninguna otra decisión arquitectónica de este documento fue modificada.
 
+> **Estado de implementación — 8 de septiembre de 2026:** este documento se
+> conserva como diseño y propuesta original. El piloto que se validó después
+> implementa un Cloudflare Worker con Static Assets, OAuth de escritorio y
+> Google Calendar como único registro operativo. Pages Functions, cuenta de
+> servicio, Google Sheets y Email Service no forman parte del MVP actual y no
+> deben reintroducirse sin una nueva decisión explícita. La guía operativa
+> vigente está en `README.md`, `AGENTS.md` y `docs/OAUTH-SETUP.md`.
+
 ---
 
 ## 1. Propósito de este documento

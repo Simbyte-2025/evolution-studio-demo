@@ -10,21 +10,22 @@ Cuentas involucradas:
 
 | Rol | Cuenta |
 | --- | --- |
-| Organizadora / dueña de los calendarios / OAuth | `agenda.evolution.demo@gmail.com` |
+| Organizadora / OAuth | `cannibalchild.uk@gmail.com` |
 | Barbero Demo 1 → `BARBER_A_CALENDAR_ID` (Leonardo) | `cannibalchild123@gmail.com` |
 | Barbero Demo 2 → `BARBER_B_CALENDAR_ID` (Vicente) | `caballero.sepulveda.nicolas@gmail.com` |
 | Administradora | `nicolas.caballero.sepulveda@gmail.com` |
 
 > No se usa cuenta de servicio: son cuentas Gmail personales, sin Workspace,
-> así que no existe delegación a nivel de dominio. Como ambos calendarios
-> pertenecen a la misma cuenta organizadora, **un solo `refresh_token`
-> cubre los dos** — no hace falta autorizar barbero por barbero.
+> así que no existe delegación a nivel de dominio. Un solo `refresh_token`
+> cubre los dos calendarios siempre que la cuenta organizadora tenga permiso
+> para modificar eventos en ambos — no hace falta autorizar barbero por
+> barbero.
 
 ---
 
 ## 1. Proyecto y API en Google Cloud Console
 
-Con la sesión iniciada en **`agenda.evolution.demo@gmail.com`**:
+Con una cuenta que administre el proyecto de Google Cloud:
 
 1. Entra a <https://console.cloud.google.com/> y crea un proyecto nuevo
    (por ejemplo `evolution-studio-booking`).
@@ -37,7 +38,7 @@ Con la sesión iniciada en **`agenda.evolution.demo@gmail.com`**:
 4. Tipo de usuario: **Externo**. Completa nombre de la app, correo de
    asistencia y correo de contacto del desarrollador.
 5. En **Permisos**, agrega el scope `https://www.googleapis.com/auth/calendar`.
-6. En **Usuarios de prueba**, agrega `agenda.evolution.demo@gmail.com`.
+6. En **Usuarios de prueba**, agrega `cannibalchild.uk@gmail.com`.
    Sin esto la autorización será rechazada mientras el proyecto esté en
    estado "Testing".
 
@@ -81,7 +82,7 @@ aparece en un archivo versionado.
     ```
 
 13. Se abre el navegador. **Inicia sesión con
-    `agenda.evolution.demo@gmail.com`** (no con la cuenta administradora).
+    `cannibalchild.uk@gmail.com`** (no con la cuenta administradora).
 14. Google mostrará el aviso "Google no ha verificado esta aplicación":
     **Configuración avanzada → Ir a (nombre de la app)**. Es esperado
     mientras el proyecto esté en "Testing".
@@ -97,13 +98,15 @@ autorizado la app antes. Revoca el acceso en
 ## 6. Antes de la prueba integral
 
 - [ ] La cuenta administradora (`nicolas.caballero.sepulveda@gmail.com`)
-      confirma que **ve ambos calendarios compartidos** en su Google
-      Calendar, con permiso para modificar eventos y ver detalles.
+      confirma que **ve los dos calendarios DEMO nuevos** en su Google
+      Calendar, con permiso para modificar eventos y ver detalles. Esta
+      visibilidad no se ha vuelto a comprobar después de la migración.
 
-      *Estado (2026-09-08):* el **permiso ya está concedido**. Consultando
+      *Estado previo a la migración (2026-09-08):* el permiso de la cuenta
+      administradora estaba concedido. Consultando
       `acl.list` de ambos calendarios con el token de la cuenta
       organizadora, los dos devuelven exactamente tres entradas: el propio
-      calendario (`owner`), `agenda.evolution.demo@gmail.com` (`owner`) y
+      calendario (`owner`), la antigua cuenta organizadora (`owner`) y
       `nicolas.caballero.sepulveda@gmail.com` con rol **`writer`** — que es
       el permiso para modificar eventos y ver detalles.
 
@@ -114,15 +117,26 @@ autorizado la app antes. Revoca el acceso en
       que este proyecto no tiene. Por eso la casilla sigue abierta: falta que
       la administradora confirme que los ve agregados.
 
-      Esta casilla **no se puede cerrar por API**: pide una confirmación
-      humana ("la cuenta administradora confirma"). Que quede abierta con la
-      ACL ya verificada es su estado correcto, no uno provisional.
+      Ese resultado histórico no prueba la ACL ni la aceptación de los
+      calendarios nuevos. La casilla solo se cierra con evidencia de la
+      cuenta administradora actual.
 
       Los correos de los barberos no figuran en la ACL, y es lo esperado:
       entran al evento como *attendees* (`src/api/bookings.js`), no como
       compartidos del calendario.
-- [ ] `npx wrangler dev` levanta y `/api/config` responde.
-- [ ] `/api/availability` devuelve horarios reales de cada calendario.
+- [x] `cannibalchild.uk@gmail.com` es propietaria y puede modificar eventos
+      en los dos calendarios DEMO nuevos. Los Calendar IDs anteriores eran
+      inaccesibles y solo `BARBER_A_CALENDAR_ID` y
+      `BARBER_B_CALENDAR_ID` fueron reemplazados en `.dev.vars`.
+- [x] El Worker local levantó en `127.0.0.1:8799` y `/api/config` respondió.
+- [x] `/api/availability` devolvió horarios reales de ambos calendarios.
+- [x] Una reserva enviada desde `/reservar/` creó un evento real en
+      `DEMO — Barbero 1`; la consulta posterior bloqueó ese horario solo
+      para el Barbero 1 y lo mantuvo disponible para el Barbero 2.
+
+La prueba anterior valida el MVP **local**. El Worker remoto conserva el
+conjunto anterior de credenciales y Calendar IDs hasta que se cargue y se
+inspeccione una nueva versión de Cloudflare en un checkpoint separado.
 
 ## 7. Cuando toque desplegar (todavía no)
 

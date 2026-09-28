@@ -43,7 +43,7 @@ GOOGLE_CLIENT_SECRET=reemplazar-con-el-client-secret
 # organizadora. No se escribe a mano.
 GOOGLE_REFRESH_TOKEN=reemplazar-corriendo-scripts/oauth-setup.mjs
 
-# ── Calendarios DEMO (propiedad de la cuenta organizadora) ─────────────
+# ── Calendarios DEMO (accesibles por la cuenta organizadora) ───────────
 # Leonardo -> DEMO — Barbero 1 ; Vicente -> DEMO — Barbero 2.
 # El id se copia desde Configuración del calendario > Integrar calendario.
 BARBER_A_CALENDAR_ID=reemplazar-con-el-id-del-calendario-de-barbero-1

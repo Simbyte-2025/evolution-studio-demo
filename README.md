@@ -1,14 +1,25 @@
-# Simbyte — Evolution Studio demo
+# Simbyte — Evolution Studio
 
-Repositorio local para preparar la demo comercial mobile-first de **Evolution Studio**.
+Repositorio de la demo comercial mobile-first y del MVP de reservas de
+**Evolution Studio**. Los datos de servicios, precios, barberos y horarios
+siguen siendo fixtures DEMO hasta que el negocio los confirme.
 
-## Objetivo inmediato
+## Dos flujos separados
 
-Presentar una demo comercial mobile-first que integra la landing y una simulación completa de reserva dentro del mismo sitio. La demo permite recorrer servicio → barbero → fecha/hora → confirmación, pero no guarda datos ni crea citas reales.
+El repositorio conserva dos pipelines deliberadamente independientes:
 
-## Ejecutar localmente
+1. **Demo simulada para Sites.** `index.html` y
+   `reservation-prototype/index.html` generan el sitio visual publicado. No
+   consultan Google ni crean reservas reales.
+2. **MVP real para Cloudflare.** `reservation-prototype/index.real.html`
+   alimenta un Worker con Static Assets. `/reservar/` consume `/api/config`,
+   `/api/availability` y `/api/bookings`, y registra citas reales en Google
+   Calendar.
 
-No requiere npm, framework ni instalación de dependencias.
+No conectar el pipeline de Sites a `/api/*`: Sites y el Worker son
+publicaciones distintas y se habilitan por separado.
+
+## Ejecutar la demo simulada
 
 ```bash
 python3 -m http.server 4173
@@ -21,21 +32,55 @@ http://localhost:4173/
 http://localhost:4173/reservation-prototype/
 ```
 
-## Estructura
+## Ejecutar el MVP real en local
 
-- `index.html`: landing principal; sus CTA abren `/reservar` en la publicación de Sites.
-- `reservation-prototype/`: fuente del flujo de reserva simulado y su versión HTML portátil.
-- `support.js` / `image-slot.js`: runtime mínimo requerido por el export actual.
-- `assets/reference/`: capturas entregadas por Nicolás como referencia visual y de identidad.
-- `reference/original-export/`: export original íntegro; no editar.
-- `AGENTS.md`: instrucciones persistentes para Codex.
-- `docs/evolution-brief.md`: hechos, inferencias, supuestos y alcance.
-- `docs/baseline/`: capturas de referencia del estado inicial, si la previsualización local puede generarlas.
+Requiere dependencias instaladas y un `.dev.vars` local configurado según
+`docs/OAUTH-SETUP.md`. El archivo contiene secretos: está ignorado por Git y
+nunca debe imprimirse ni versionarse.
 
-## Límite de la demo
+```bash
+npm install
+npm run build:cloudflare
+npx wrangler dev --local --ip 127.0.0.1 --port 8799
+```
 
-Esta versión sustituye la redirección anterior a Vortexa únicamente para la demostración publicada. Los servicios, precios, barberos y horarios del flujo son datos de muestra. No hay backend, persistencia, disponibilidad real, notificaciones ni integración externa.
+Abrir `http://127.0.0.1:8799/reservar/`. El flujo usa Google Calendar real;
+enviar el formulario crea un evento y puede enviar invitaciones.
 
-## Criterio de terminado
+## Validación
 
-La portada y el flujo deben verse correctamente en 375, 390, 430, 768 y 1440 px; `/reservar` debe funcionar dentro del dominio publicado; la simulación debe identificarse claramente y no debe existir ningún enlace, petición o redirección a Vortexa en el sitio.
+```bash
+npm test
+npm run test:node
+npm run build:cloudflare
+npx wrangler deploy --dry-run
+```
+
+La validación automatizada no debe realizar llamadas reales a Google.
+
+## Arquitectura actual del piloto
+
+- Cloudflare Worker con Static Assets; no Pages Functions.
+- OAuth 2.0 de escritorio ejecutado localmente; no cuenta de servicio.
+- Google Calendar como registro operativo del piloto; no Google Sheets.
+- Disponibilidad mediante `freeBusy` y creación mediante `events.insert`.
+- Secretos únicamente en `.dev.vars` local y bindings secretos de
+  Cloudflare.
+- Sin dashboard, login, CRM, WhatsApp API, pagos ni Email Service.
+
+## Estado de publicación
+
+La reserva real fue validada de extremo a extremo en local. Esa validación
+no prueba que el Worker remoto o el dominio público usen las credenciales y
+Calendar IDs vigentes. La actualización de Cloudflare y la apertura de una
+URL pública pertenecen a un checkpoint posterior e independiente.
+
+## Estructura relevante
+
+- `index.html`: landing y fuente del pipeline de Sites.
+- `reservation-prototype/index.html`: reserva simulada.
+- `reservation-prototype/index.real.html`: reserva conectada al Worker.
+- `src/`: API y lógica del Worker.
+- `scripts/build-cloudflare.mjs`: genera `public/`, que no se versiona.
+- `docs/OAUTH-SETUP.md`: configuración local y procedimiento de secretos.
+- `reference/original-export/`: respaldo original; no modificar.
